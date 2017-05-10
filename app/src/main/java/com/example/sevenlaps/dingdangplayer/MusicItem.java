@@ -5,20 +5,20 @@ package com.example.sevenlaps.dingdangplayer;
  */
 
 public class MusicItem {
-    public int mId;
+    private int mId;
     private String mMusicTitle;
     private String mArtist;
 
     public MusicItem(){}
 
-    public MusicItem(int id) {
-        this.mId = id;
-    }
+//    public MusicItem(int id) {
+//        this.mId = id;
+//    }
 
-    public MusicItem(String mMusicTitle, String mArtist) {
-        this.mMusicTitle = mMusicTitle;
-        this.mArtist = mArtist;
-    }
+//    public MusicItem(String mMusicTitle, String mArtist) {
+//        this.mMusicTitle = mMusicTitle;
+//        this.mArtist = mArtist;
+//    }
 
     public String getmMusicTitle() {
         return mMusicTitle;
@@ -40,4 +40,7 @@ public class MusicItem {
         return mId;
     }
 
+    public void setmId(int mId) {
+        this.mId = mId;
+    }
 }

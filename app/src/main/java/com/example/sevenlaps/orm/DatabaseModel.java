@@ -29,6 +29,11 @@ public class DatabaseModel {
         return databaseModelInstance;
     }
 
+    /**
+     * 从数据库加载音乐
+     * @param context
+     * @return
+     */
     public List<MusicItem> loadMusic(Context context){
         List<MusicItem> items = null;
         //如果数据库里面有,就load数据库里的
@@ -43,7 +48,11 @@ public class DatabaseModel {
          return items;
     }
 
-    public List<MusicItem> loadMusicDataFromDatabase() {
+    /**
+     * 从数据库里面取出所有的音乐信息
+     * @return
+     */
+    private List<MusicItem> loadMusicDataFromDatabase() {
         //更新数据库数据
 
         return mMusicDao.getAll();
@@ -51,5 +60,16 @@ public class DatabaseModel {
 
     public void updateMusicDatabase(List<MusicItem> items){
         mMusicDao.insertItems(items);
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public MusicItem getMusicItemById(int id){
+        MusicItem musicItem = new MusicItem();
+        musicItem = mMusicDao.getItemById(id);
+        return musicItem;
     }
 }

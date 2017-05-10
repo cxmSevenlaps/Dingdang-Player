@@ -62,11 +62,18 @@ public class MusicDaoImplement implements MusicDao {
 
     @Override
     public MusicItem getItemById(int id) {
-        MusicItem item = new MusicItem(id);
-        Cursor cursor = getMusicInfoDatabase().query(MUSIC_INFO_TABLE, null, "id=?", new String[]{"" + id}, null, null, null);
-        item.setmMusicTitle(cursor.getString(cursor.getColumnIndex("title")));
-        item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
+        MusicItem item = new MusicItem();
+        Cursor cursor = getMusicInfoDatabase().query(MUSIC_INFO_TABLE, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
+//        Cursor cursor = getMusicInfoDatabase().rawQuery("select * from "+MUSIC_INFO_TABLE+" where id = ? ", new String[]{String.valueOf(id)});
+        Log.d("MusicDaoImplement", "get in MusicDaoImplement");
+        if (cursor.moveToFirst()) {
 
+            item.setmId(cursor.getInt(cursor.getColumnIndex("id")));
+            item.setmMusicTitle(cursor.getString(cursor.getColumnIndex("title")));
+            item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
+            Log.d("MusicDaoImplement", ""+"id="+cursor.getInt(cursor.getColumnIndex("id"))+" title: "+cursor.getString(cursor.getColumnIndex("title")));
+        }
+        cursor.close();
         return item;
     }
 
@@ -78,10 +85,11 @@ public class MusicDaoImplement implements MusicDao {
         if (cursor.moveToFirst()) {
             do {
                 MusicItem item = new MusicItem();
+                item.setmId(cursor.getInt(cursor.getColumnIndex("id")));
                 item.setmMusicTitle(cursor.getString(cursor.getColumnIndex("title")));
                 item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
                 items.add(item);
-                Log.d(TAG_MUSICE_DAO_IMPLEMENT,"add:  title: "+item.getmMusicTitle()+" artist: "+item.getmArtist());
+                Log.d(TAG_MUSICE_DAO_IMPLEMENT,"add:  title: "+item.getmMusicTitle()+" artist: "+item.getmArtist()+" id="+item.getmId());
             } while (cursor.moveToNext());
         }
         cursor.close();

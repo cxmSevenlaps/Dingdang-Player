@@ -1,6 +1,7 @@
 package com.example.sevenlaps.dingdangplayer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,8 +55,9 @@ public class MusicItemAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public MusicItem getItem(int position) {
+        Log.d("MusicItemAdapter", ""+position);
+        return mMusicList.get(position);
     }
 
     private final class ViewHolder{
