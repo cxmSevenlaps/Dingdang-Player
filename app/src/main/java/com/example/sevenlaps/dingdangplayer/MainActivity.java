@@ -17,7 +17,7 @@ import com.example.sevenlaps.orm.DatabaseModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
 
     private ListView mMusicListView;
     private MusicItemAdapter mMusicItemAdapter;
@@ -42,47 +42,14 @@ public class MainActivity extends AppCompatActivity{
         mMusicListView.setAdapter(mMusicItemAdapter);
 
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);
-        mBtnDetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-                intent.putExtra("id", mMusicItem.getmId());
-
-                startActivity(intent);
-            }
-        });
+        mBtnDetails.setOnClickListener(this);
 
         mIBtnPlayOrPause = (ImageButton)findViewById(R.id.btn_play_or_pause);
         mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-        mIBtnPlayOrPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(playController.getPlayState()== PlayStateConstant.ISPAUSE){
-                    playController.setPlayState(PlayStateConstant.ISPLAYING);
-                    playController.play();
-                    mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-                }else if (PlayController.getInstance().getPlayState()== PlayStateConstant.ISPLAYING){
-                    playController.setPlayState(PlayStateConstant.ISPAUSE);
-                    playController.getInstance().pause();
-                    mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-                }
-            }
-        });
+        mIBtnPlayOrPause.setOnClickListener(this);
 
         /*跳转到MusicDetailsActivity*/
-        mMusicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("MainActivity", "listview click");
-                mMusicItem = mMusicItemAdapter.getItem(position);
-                performSetBtnDetailsClick();
-                Intent intentService = new Intent(MainActivity.this,MusicService.class);
-                intentService.putExtra("id", mMusicItem.getmId());
-                startService(intentService);
-//                performMusicListItemClick(mMusicItem);
-//                Log.d("MainActivity", mMusicItem.getmId()+"");
-            }
-        });
+        mMusicListView.setOnItemClickListener(this);
 
     }
 
@@ -101,6 +68,43 @@ public class MainActivity extends AppCompatActivity{
         intent.putExtra("id", item.getmId());
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn_activity_jump_to_details:
+                Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
+                intent.putExtra("id", mMusicItem.getmId());
+
+                startActivity(intent);
+            break;
+            case R.id.btn_play_or_pause:
+                if(playController.getPlayState()== PlayStateConstant.ISPAUSE){
+                    playController.setPlayState(PlayStateConstant.ISPLAYING);
+                    playController.play();
+                    mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+                }else if (PlayController.getInstance().getPlayState()== PlayStateConstant.ISPLAYING){
+                    playController.setPlayState(PlayStateConstant.ISPAUSE);
+                    playController.getInstance().pause();
+                    mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+                }
+            break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.d("MainActivity", "listview click");
+        mMusicItem = mMusicItemAdapter.getItem(position);
+        performSetBtnDetailsClick();
+        Intent intentService = new Intent(MainActivity.this,MusicService.class);
+        intentService.putExtra("id", mMusicItem.getmId());
+        startService(intentService);
+//                performMusicListItemClick(mMusicItem);
+//                Log.d("MainActivity", mMusicItem.getmId()+"");
     }
 
 
