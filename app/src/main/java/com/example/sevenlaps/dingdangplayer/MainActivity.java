@@ -53,58 +53,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    /**
-     * btn上显示正在播放的歌曲信息,设置播放图标
-     */
-    private void performSetBtnDetailsClick(){
-        mBtnDetails.setText("正在播放:"+mMusicItem.getmMusicTitle());
-        mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-    }
-
-    private void performMusicListItemClick(MusicItem item){
-        Log.d("MainActivity", "id: "+item.getmId());
-
-        Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-        intent.putExtra("id", item.getmId());
-
-        startActivity(intent);
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_activity_jump_to_details:
-                Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-                intent.putExtra("id", mMusicItem.getmId());
-
-                startActivity(intent);
+                performBtnJumpToDetailsClick();
             break;
             case R.id.btn_play_or_pause:
-                if(playController.getPlayState()== PlayStateConstant.ISPAUSE){
-                    playController.setPlayState(PlayStateConstant.ISPLAYING);
-                    playController.play();
-                    mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-                }else if (PlayController.getInstance().getPlayState()== PlayStateConstant.ISPLAYING){
-                    playController.setPlayState(PlayStateConstant.ISPAUSE);
-                    playController.getInstance().pause();
-                    mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-                }
+                performBtnPlayOrPauseClick();
             break;
             default:
                 break;
         }
     }
 
+    private void performBtnPlayOrPauseClick(){
+        if(playController.getPlayState()== PlayStateConstant.ISPAUSE){
+            playController.setPlayState(PlayStateConstant.ISPLAYING);
+            playController.play();
+            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+        }else if (PlayController.getInstance().getPlayState()== PlayStateConstant.ISPLAYING){
+            playController.setPlayState(PlayStateConstant.ISPAUSE);
+            playController.getInstance().pause();
+            mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+        }
+    }
+    private void performBtnJumpToDetailsClick(){
+        Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
+        intent.putExtra("id", mMusicItem.getmId());
+
+        startActivity(intent);
+    }
+
+    /**
+     * btn上显示正在播放的歌曲信息,设置播放图标
+     */
+    private void updataButtonUI(){
+        mBtnDetails.setText("正在播放:"+mMusicItem.getmMusicTitle());
+        mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+    }
+    
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
         mMusicItem = mMusicItemAdapter.getItem(position);
-        performSetBtnDetailsClick();
+        updataButtonUI();
         Intent intentService = new Intent(MainActivity.this,MusicService.class);
         intentService.putExtra("id", mMusicItem.getmId());
         startService(intentService);
-//                performMusicListItemClick(mMusicItem);
-//                Log.d("MainActivity", mMusicItem.getmId()+"");
     }
 
 
