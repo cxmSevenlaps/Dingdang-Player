@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnDetails.setText("正在播放:"+mMusicItem.getmMusicTitle());
         mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
     }
-    
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");

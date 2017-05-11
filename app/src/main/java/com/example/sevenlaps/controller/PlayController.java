@@ -13,10 +13,21 @@ public class PlayController {
     private static final String PLAY_CONTROLLER_LOG="PlayController";
     private int playState=PlayStateConstant.ISPAUSE;
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    private String path;
+
     private static final PlayController playControllerInstance = new PlayController();
     MediaPlayer mediaPlayer = new MediaPlayer();
 
     private PlayController() {
+
     }
 
     public int getPlayState() {
@@ -34,10 +45,24 @@ public class PlayController {
 
     public void play(){
         Log.d(PLAY_CONTROLLER_LOG, "play()");
-        if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-            playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
+        try {
+            mediaPlayer.setDataSource(playControllerInstance.getPath());
+//            mediaPlayer.setAudioAttributes(AudioAttributes.CONTENT_TYPE_MUSIC);
+//            mediaPlayer.prepare();
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    if (!mediaPlayer.isPlaying()) {
+                        mediaPlayer.start();
+                        playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
     public void pause(){
         Log.d(PLAY_CONTROLLER_LOG, "pause()");
@@ -47,15 +72,25 @@ public class PlayController {
         }
     }
 
-    public void initMediaPlayer(String path){
-        Log.d(PLAY_CONTROLLER_LOG, "initMediaPlayer(String path)"+path);
-        try {
-            mediaPlayer.setDataSource(path);
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void initMediaPlayer(String path){
+//        Log.d(PLAY_CONTROLLER_LOG, "initMediaPlayer(String path)"+path);
+//        try {
+//            mediaPlayer.setDataSource(path);
+////            mediaPlayer.setAudioAttributes(AudioAttributes.CONTENT_TYPE_MUSIC);
+////            mediaPlayer.prepare();
+//            mediaPlayer.prepareAsync();
+//            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                @Override
+//                public void onPrepared(MediaPlayer mp) {
+//
+//                }
+//            });
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
 
     public void destroy(){
         if (mediaPlayer!=null){

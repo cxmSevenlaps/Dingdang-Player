@@ -38,7 +38,7 @@ public class MusicService extends Service {
             Log.d(MUSIC_SERVICE_LOG, " id="+id);
             MusicItem item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(id);
             if (null!=item) {
-                mPlayController.initMediaPlayer(item.getPath());
+                mPlayController.setPath(item.getPath());
                 mPlayController.play();
             }
         }
