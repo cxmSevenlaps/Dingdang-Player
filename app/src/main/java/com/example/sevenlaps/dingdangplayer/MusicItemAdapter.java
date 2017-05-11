@@ -56,7 +56,7 @@ public class MusicItemAdapter extends BaseAdapter {
 
     @Override
     public MusicItem getItem(int position) {
-        Log.d("MusicItemAdapter", ""+position);
+        Log.d("MusicItemAdapter", "position="+position);
         return mMusicList.get(position);
     }
 

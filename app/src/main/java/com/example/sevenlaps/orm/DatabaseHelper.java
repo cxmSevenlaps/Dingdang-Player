@@ -13,7 +13,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String CREATE_MUSIC_INFO = "create table MusicInfo ("
             +"id integer primary key autoincrement, "
             +"title text, "
-            +"artist text)";
+            +"artist text, "
+            + "path text)";
     private Context mContext;
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {

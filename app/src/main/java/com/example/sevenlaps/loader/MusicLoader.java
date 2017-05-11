@@ -47,8 +47,8 @@ public class MusicLoader {
         MusicItem item = new MusicItem();
         item.setmArtist(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
         item.setmMusicTitle(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-
-        Log.d("MusicLoader", ""+item.getmArtist()+"  "+item.getmMusicTitle());
+        item.setPath(musicFile.getAbsolutePath());
+        Log.d("MusicLoader", ""+item.getmArtist()+"  "+item.getmMusicTitle()+"path:"+item.getPath());
         return item;
     }
 

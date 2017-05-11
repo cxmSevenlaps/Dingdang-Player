@@ -8,6 +8,7 @@ public class MusicItem {
     private int mId;
     private String mMusicTitle;
     private String mArtist;
+    private String Path;
 
     public MusicItem(){}
 
@@ -42,5 +43,13 @@ public class MusicItem {
 
     public void setmId(int mId) {
         this.mId = mId;
+    }
+
+    public String getPath() {
+        return Path;
+    }
+
+    public void setPath(String path) {
+        Path = path;
     }
 }

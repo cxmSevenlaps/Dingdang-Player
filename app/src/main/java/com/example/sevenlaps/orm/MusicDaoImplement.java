@@ -32,6 +32,7 @@ public class MusicDaoImplement implements MusicDao {
         ContentValues cv = new ContentValues();
         cv.put("title", item.getmMusicTitle());
         cv.put("artist", item.getmArtist());
+        cv.put("path", item.getPath());
         getMusicInfoDatabase().insert(MUSIC_INFO_TABLE, null, cv);
     }
 
@@ -41,8 +42,9 @@ public class MusicDaoImplement implements MusicDao {
         for (MusicItem item : items) {
             cv.put("title", item.getmMusicTitle());
             cv.put("artist", item.getmArtist());
+            cv.put("path", item.getPath());
             getMusicInfoDatabase().insert(MUSIC_INFO_TABLE, null, cv);
-            Log.d(TAG_MUSICE_DAO_IMPLEMENT,"insert "+item.getmMusicTitle()+" to database");
+            Log.d(TAG_MUSICE_DAO_IMPLEMENT,"insert "+item.getmMusicTitle()+"path"+item.getPath()+" to database");
             cv.clear();
         }
         Log.d(TAG_MUSICE_DAO_IMPLEMENT, "insert items to database");
@@ -71,7 +73,10 @@ public class MusicDaoImplement implements MusicDao {
             item.setmId(cursor.getInt(cursor.getColumnIndex("id")));
             item.setmMusicTitle(cursor.getString(cursor.getColumnIndex("title")));
             item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
-            Log.d("MusicDaoImplement", ""+"id="+cursor.getInt(cursor.getColumnIndex("id"))+" title: "+cursor.getString(cursor.getColumnIndex("title")));
+            item.setPath(cursor.getString(cursor.getColumnIndex("path")));
+            Log.d("MusicDaoImplement", ""+"id="+item.getmId()
+                    +" title: "+item.getmMusicTitle()
+            +"path:"+item.getPath());
         }
         cursor.close();
         return item;
