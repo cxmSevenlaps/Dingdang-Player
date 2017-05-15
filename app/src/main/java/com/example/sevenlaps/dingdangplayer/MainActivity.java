@@ -98,18 +98,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
-            mMusicItem = mMusicItemAdapter.getItem(position);
+        mMusicItem = mMusicItemAdapter.getItem(position);
 
-        if ((playController.getPlayState()!=PlayStateConstant.IS_STOP)
-                &&(playController.getPath().equals(mMusicItem.getPath()))){
-            //啥也不做
-        }else{
-            playController.destroy();
-            updataButtonUI();
-            Intent intentService = new Intent(MainActivity.this, MusicService.class);
-            intentService.putExtra("id", mMusicItem.getmId());
-            startService(intentService);
-        }
+        playController.destroy();
+        playController.setPlayState(PlayStateConstant.IS_STOP);
+        updataButtonUI();
+        Intent intentService = new Intent(MainActivity.this, MusicService.class);
+        intentService.putExtra("id", mMusicItem.getmId());
+        startService(intentService);
     }
 
 
