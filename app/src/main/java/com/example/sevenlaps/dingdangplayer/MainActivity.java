@@ -17,7 +17,7 @@ import com.example.sevenlaps.orm.DatabaseModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private ListView mMusicListView;
     private MusicItemAdapter mMusicItemAdapter;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mBtnDetails;
     private ImageButton mIBtnPlayOrPause;
     private MusicItem mMusicItem;
-    private PlayController playController=PlayController.getInstance();
+    private PlayController playController = PlayController.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
 
-        mMusicListView = (ListView)findViewById(R.id.listview_music_list);
+        mMusicListView = (ListView) findViewById(R.id.listview_music_list);
         mMusicList = new ArrayList<MusicItem>();
 
 //        initList(mMusicList);//测试Listview显示使用
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);
         mBtnDetails.setOnClickListener(this);
 
-        mIBtnPlayOrPause = (ImageButton)findViewById(R.id.btn_play_or_pause);
+        mIBtnPlayOrPause = (ImageButton) findViewById(R.id.btn_play_or_pause);
         mIBtnPlayOrPause.setImageResource(R.mipmap.play);
         mIBtnPlayOrPause.setOnClickListener(this);
 
@@ -55,30 +55,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_activity_jump_to_details:
                 performBtnJumpToDetailsClick();
-            break;
+                break;
             case R.id.btn_play_or_pause:
                 performBtnPlayOrPauseClick();
-            break;
+                break;
             default:
                 break;
         }
     }
 
-    private void performBtnPlayOrPauseClick(){
-        if(playController.getPlayState()== PlayStateConstant.ISPAUSE){
-            playController.setPlayState(PlayStateConstant.ISPLAYING);
+    private void performBtnPlayOrPauseClick() {
+        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
             playController.play();
+            playController.setPlayState(PlayStateConstant.ISPLAYING);
+
             mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-        }else if (PlayController.getInstance().getPlayState()== PlayStateConstant.ISPLAYING){
+        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
             playController.setPlayState(PlayStateConstant.ISPAUSE);
             playController.getInstance().pause();
             mIBtnPlayOrPause.setImageResource(R.mipmap.play);
         }
     }
-    private void performBtnJumpToDetailsClick(){
+
+    private void performBtnJumpToDetailsClick() {
         Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
         intent.putExtra("id", mMusicItem.getmId());
 
@@ -88,19 +90,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * btn上显示正在播放的歌曲信息,设置播放图标
      */
-    private void updataButtonUI(){
-        mBtnDetails.setText("正在播放:"+mMusicItem.getmMusicTitle());
+    private void updataButtonUI() {
+        mBtnDetails.setText("正在播放:" + mMusicItem.getmMusicTitle());
         mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
-        mMusicItem = mMusicItemAdapter.getItem(position);
-        updataButtonUI();
-        Intent intentService = new Intent(MainActivity.this,MusicService.class);
-        intentService.putExtra("id", mMusicItem.getmId());
-        startService(intentService);
+            mMusicItem = mMusicItemAdapter.getItem(position);
+
+        if ((playController.getPlayState()!=PlayStateConstant.IS_STOP)
+                &&(playController.getPath().equals(mMusicItem.getPath()))){
+            //啥也不做
+        }else{
+            playController.destroy();
+            updataButtonUI();
+            Intent intentService = new Intent(MainActivity.this, MusicService.class);
+            intentService.putExtra("id", mMusicItem.getmId());
+            startService(intentService);
+        }
     }
 
 

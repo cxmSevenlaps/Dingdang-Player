@@ -5,7 +5,8 @@ package com.example.sevenlaps.controller;
  */
 
 public class PlayStateConstant {
-    public static final int ISPLAYING = 0;
-    public static final int ISPAUSE = 1;
+    public static final int ISPLAYING = 1;
+    public static final int ISPAUSE = 2;
+    public static final int IS_STOP =0;
 
 }
