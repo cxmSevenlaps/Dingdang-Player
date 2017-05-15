@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton mIBtnPlayOrPause;
     private MusicItem mMusicItem;
     private PlayController playController = PlayController.getInstance();
+    private String mCurrentPlayingPath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,14 +100,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
         mMusicItem = mMusicItemAdapter.getItem(position);
-
-        playController.destroy();
-        playController.setPlayState(PlayStateConstant.IS_STOP);
-        updataButtonUI();
-        Intent intentService = new Intent(MainActivity.this, MusicService.class);
-        intentService.putExtra("id", mMusicItem.getmId());
-        startService(intentService);
+        mMusicItem.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mMusicItem.getmId()).getPath());
+        Log.d("MainActivity", "mCurrentPlayingPath:"+mCurrentPlayingPath);
+        Log.d("MainActivity", "mMusicItem.getPath():"+mMusicItem.getPath());
+        if ((mCurrentPlayingPath==null)||
+                (mMusicItem.getPath().compareTo(mCurrentPlayingPath)!=0)){
+            playController.destroy();
+            playController.setPlayState(PlayStateConstant.IS_STOP);
+            updataButtonUI();
+            mCurrentPlayingPath = mMusicItem.getPath();
+            Intent intentService = new Intent(MainActivity.this, MusicService.class);
+            intentService.putExtra("id", mMusicItem.getmId());
+            startService(intentService);
+        }
+        else {
+            Log.d("MainActivity", "点击同一首歌:"+mMusicItem.getmMusicTitle()+",于是啥也不干");
+        }
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        playController.destroy();
+//    }
+}
 
 
     /*测试Listview显示使用*/
@@ -118,4 +135,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    }
 
 
-}
+

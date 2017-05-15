@@ -113,6 +113,7 @@ public class PlayController {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
+            playControllerInstance.setPlayState(PlayStateConstant.IS_STOP);
         }
 
         if(mTimer!=null){

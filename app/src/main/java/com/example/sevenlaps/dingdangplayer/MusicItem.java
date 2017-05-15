@@ -1,13 +1,10 @@
 package com.example.sevenlaps.dingdangplayer;
 
-import com.example.sevenlaps.controller.PlayStateConstant;
-
 /**
  * Created by 7laps on 2017/5/7.
  */
 
 public class MusicItem {
-    private int playState = PlayStateConstant.IS_STOP;
     private int mId;
     private String mMusicTitle;
     private String mArtist;
@@ -24,13 +21,6 @@ public class MusicItem {
 //        this.mArtist = mArtist;
 //    }
 
-    public int getPlayState() {
-        return playState;
-    }
-
-    public void setPlayState(int playState) {
-        this.playState = playState;
-    }
 
     public String getmMusicTitle() {
         return mMusicTitle;
