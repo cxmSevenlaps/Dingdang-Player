@@ -131,12 +131,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
 
             playController.destroy();
-            updateButtonUI();
             mCurrentPlayingPath = mMusicItem.getPath();
             playController.setIsPlayingId(mMusicItem.getmId());
             Intent intentService = new Intent(MainActivity.this, MusicService.class);
             intentService.putExtra("id", mMusicItem.getmId());
             startService(intentService);
+            updateButtonUI();
         } else {
             if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
                 playController.play();
