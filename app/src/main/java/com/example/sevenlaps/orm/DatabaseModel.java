@@ -72,4 +72,12 @@ public class DatabaseModel {
         musicItem = mMusicDao.getItemById(id);
         return musicItem;
     }
+
+    public int getItemsQuantity(){
+        int itemsQuantity = 0;
+
+        itemsQuantity = mMusicDao.getItemsQuantity();
+
+        return itemsQuantity;
+    }
 }

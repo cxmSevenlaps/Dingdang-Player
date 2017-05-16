@@ -20,4 +20,6 @@ public interface MusicDao {
     public MusicItem getItemById(int id);
 
     public List<MusicItem> getAll();
+
+    public int getItemsQuantity();//获取条目的数量
 }

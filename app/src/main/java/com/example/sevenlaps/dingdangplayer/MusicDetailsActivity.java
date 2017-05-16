@@ -13,6 +13,8 @@ import com.example.sevenlaps.controller.PlayController;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
+import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
+
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView mTextViewArtist;
     private TextView mTextViewTitle;
@@ -21,6 +23,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private static SeekBar mSeekBar;
 
     private ImageButton mIbtnPlayOrPause;
+    private ImageButton mIbtnPlayPrevious;
 
     private PlayController playController = PlayController.getInstance();
 
@@ -71,13 +74,21 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         });
 
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
+        initPlayOrPauseBtnImage();
+        mIbtnPlayOrPause.setOnClickListener(this);
+        mIbtnPlayPrevious = (ImageButton) findViewById(R.id.ibtn_details_play_previous);
+        mIbtnPlayPrevious.setImageResource(R.mipmap.play_previous);
+        mIbtnPlayPrevious.setOnClickListener(this);
+
+    }
+
+    private void initPlayOrPauseBtnImage() {
         if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
+            mIbtnPlayOrPause.setImageResource(play);
         } else if (playController.getPlayState() == PlayStateConstant.ISPLAYING) {
 
             mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
         }
-        mIbtnPlayOrPause.setOnClickListener(this);
     }
 
     @Override
@@ -87,9 +98,27 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                 performBtnPlayOrPauseClick();
                 break;
             default:
+                performBtnPlayPrevious();
                 break;
         }
     }
+
+    private void performBtnPlayPrevious() {
+        playController.destroy();
+        playController.setPlayState(PlayStateConstant.IS_STOP);
+        Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
+        if (playController.getIsPlayingId() == 0) {
+
+            intentService.putExtra("id", DatabaseModel.getDatabaseModelInstance(this).getItemsQuantity()-1);
+            playController.setIsPlayingId(DatabaseModel.getDatabaseModelInstance(this).getItemsQuantity()-1);
+        }else {
+
+            intentService.putExtra("id", playController.getIsPlayingId()-1);
+            playController.setIsPlayingId(playController.getIsPlayingId()-1);
+        }
+        startService(intentService);
+    }
+
     private void performBtnPlayOrPauseClick() {
         if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
             playController.play();
@@ -99,7 +128,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
             playController.setPlayState(PlayStateConstant.ISPAUSE);
             playController.getInstance().pause();
-            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
+            mIbtnPlayOrPause.setImageResource(play);
         }
     }
 //    public static Handler handler = new Handler(){

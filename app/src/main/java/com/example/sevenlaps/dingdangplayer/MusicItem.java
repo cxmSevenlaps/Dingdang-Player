@@ -5,6 +5,7 @@ package com.example.sevenlaps.dingdangplayer;
  */
 
 public class MusicItem {
+
     private int mId;
     private String mMusicTitle;
     private String mArtist;

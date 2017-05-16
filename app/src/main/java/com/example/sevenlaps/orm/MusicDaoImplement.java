@@ -105,6 +105,20 @@ public class MusicDaoImplement implements MusicDao {
         return items;
     }
 
+    @Override
+    public int getItemsQuantity() {
+        int itemsQuantity = 0;
+        Cursor cursor = getMusicInfoDatabase().query(MUSIC_INFO_TABLE, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                itemsQuantity++;
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return itemsQuantity;
+    }
+
+
     /*获取数据库对象*/
     private SQLiteDatabase getMusicInfoDatabase() {
         return mDbHelper.getWritableDatabase();

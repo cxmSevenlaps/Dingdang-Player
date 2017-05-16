@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.sevenlaps.controller.PlayController;
+import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 public class MusicService extends Service {
@@ -38,8 +39,10 @@ public class MusicService extends Service {
             Log.d(MUSIC_SERVICE_LOG, " id="+id);
             MusicItem item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(id);
             if (null!=item) {
+                mPlayController.setIsPlayingId(id);
                 mPlayController.setPath(item.getPath());
                 mPlayController.play();
+                mPlayController.setPlayState(PlayStateConstant.ISPLAYING);
             }
         }
 

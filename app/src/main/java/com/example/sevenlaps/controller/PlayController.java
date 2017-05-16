@@ -13,6 +13,8 @@ public class PlayController {
     private static final String PLAY_CONTROLLER_LOG="PlayController";
     private int playState=PlayStateConstant.IS_STOP;
     private MediaPlayer mediaPlayer;
+    private int isPlayingId;
+    private String path;
     private Timer mTimer;
 
     public MediaPlayer getMediaPlayer() {
@@ -27,7 +29,13 @@ public class PlayController {
         this.path = path;
     }
 
-    private String path;
+    public int getIsPlayingId() {
+        return isPlayingId;
+    }
+
+    public void setIsPlayingId(int isPlayingId) {
+        this.isPlayingId = isPlayingId;
+    }
 
     private static final PlayController playControllerInstance = new PlayController();
 
@@ -123,7 +131,7 @@ public class PlayController {
     }
 
 
-    public void playNext(){
+    public void playPrevious(){
 
     }
 

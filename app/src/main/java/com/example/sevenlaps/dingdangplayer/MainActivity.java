@@ -91,13 +91,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * btn上显示正在播放的歌曲信息,设置播放图标
      */
-    private void updataButtonUI() {
-        if (mMusicItem.getmMusicTitle()==null) {
+    private void updateButtonUI() {
+        MusicItem item;
+        item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        if (item.getmMusicTitle() == null) {
             mBtnDetails.setText("歌曲名无法显示");
-        }else {
-            mBtnDetails.setText("正在播放:" + mMusicItem.getmMusicTitle());
+        } else {
+            mBtnDetails.setText("正在播放:" + item.getmMusicTitle());
         }
-            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+
+        switch (playController.getPlayState()) {
+            case PlayStateConstant.ISPLAYING:
+            case PlayStateConstant.IS_STOP:
+                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+                break;
+            case PlayStateConstant.ISPAUSE:
+
+                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+                break;
+            default:
+                break;
+        }
 
     }
 
@@ -108,29 +122,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void performItemClick(int position){
+    private void performItemClick(int position) {
         mMusicItem = mMusicItemAdapter.getItem(position);
         mMusicItem.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mMusicItem.getmId()).getPath());
-        Log.d("MainActivity", "mCurrentPlayingPath:"+mCurrentPlayingPath);
-        Log.d("MainActivity", "mMusicItem.getPath():"+mMusicItem.getPath());
-        if ((mCurrentPlayingPath==null)||
-                (mMusicItem.getPath().compareTo(mCurrentPlayingPath)!=0)){//第一次打开app播放||选择非"正在播放"的歌曲
+        Log.d("MainActivity", "mCurrentPlayingPath:" + mCurrentPlayingPath);
+        Log.d("MainActivity", "mMusicItem.getPath():" + mMusicItem.getPath());
+        if ((mCurrentPlayingPath == null) ||
+                (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
 
             playController.destroy();
-            playController.setPlayState(PlayStateConstant.IS_STOP);
-            updataButtonUI();
+            updateButtonUI();
             mCurrentPlayingPath = mMusicItem.getPath();
+            playController.setIsPlayingId(mMusicItem.getmId());
             Intent intentService = new Intent(MainActivity.this, MusicService.class);
             intentService.putExtra("id", mMusicItem.getmId());
             startService(intentService);
-        }
-        else {
-            if (playController.getPlayState() == PlayStateConstant.ISPAUSE){//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
+        } else {
+            if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
                 playController.play();
                 playController.setPlayState(PlayStateConstant.ISPLAYING);
 
                 mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-            }else {
+            } else {
                 Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getmMusicTitle() + ",于是啥也不干");
             }
         }
@@ -140,6 +153,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         playController.destroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        updateButtonUI();
     }
 }
 
