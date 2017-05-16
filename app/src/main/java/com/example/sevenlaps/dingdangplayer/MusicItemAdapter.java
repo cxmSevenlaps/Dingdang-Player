@@ -18,10 +18,11 @@ public class MusicItemAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private List<MusicItem> mMusicList;
 
-    public MusicItemAdapter(List<MusicItem> mMusicList, Context context){
+    public MusicItemAdapter(List<MusicItem> mMusicList, Context context) {
         this.mInflater = LayoutInflater.from(context);
         this.mMusicList = mMusicList;
     }
+
     @Override
     public int getCount() {
         return mMusicList.size();
@@ -32,20 +33,31 @@ public class MusicItemAdapter extends BaseAdapter {
 
         ViewHolder holder;
 
-        if (null==convertView){
+        if (null == convertView) {
             holder = new ViewHolder();
 
-            convertView = mInflater.inflate(R.layout.music_item,null);
+            convertView = mInflater.inflate(R.layout.music_item, null);
             holder.tvTitle = (TextView) convertView.findViewById(R.id.music_title);
-            holder.tvArtist = (TextView)convertView.findViewById(R.id.music_artist);
+            holder.tvArtist = (TextView) convertView.findViewById(R.id.music_artist);
             convertView.setTag(holder);
-        }else {
-            holder = (ViewHolder)convertView.getTag();
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.tvTitle.setText(mMusicList.get(position).getmMusicTitle());
-        holder.tvArtist.setText(mMusicList.get(position).getmArtist());
-
+        if((mMusicList.get(position).getmMusicTitle() == null)
+                &&(mMusicList.get(position).getmArtist() == null)){
+            holder.tvArtist.setText("未知艺术家");
+            holder.tvTitle.setText("未知歌曲");
+        }else if (mMusicList.get(position).getmMusicTitle() == null) {
+            holder.tvTitle.setText("未知歌曲");
+            holder.tvArtist.setText(mMusicList.get(position).getmArtist());
+        }else if(mMusicList.get(position).getmArtist() == null){
+            holder.tvArtist.setText("未知艺术家");
+            holder.tvTitle.setText(mMusicList.get(position).getmMusicTitle());
+        }else{
+            holder.tvTitle.setText(mMusicList.get(position).getmMusicTitle());
+            holder.tvArtist.setText(mMusicList.get(position).getmArtist());
+        }
         return convertView;
     }
 
@@ -56,11 +68,11 @@ public class MusicItemAdapter extends BaseAdapter {
 
     @Override
     public MusicItem getItem(int position) {
-        Log.d("MusicItemAdapter", "position="+position);
+        Log.d("MusicItemAdapter", "position=" + position);
         return mMusicList.get(position);
     }
 
-    private final class ViewHolder{
+    private final class ViewHolder {
         public TextView tvTitle;
         public TextView tvArtist;
     }

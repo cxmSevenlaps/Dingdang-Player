@@ -92,19 +92,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * btn上显示正在播放的歌曲信息,设置播放图标
      */
     private void updataButtonUI() {
-        mBtnDetails.setText("正在播放:" + mMusicItem.getmMusicTitle());
-        mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+        if (mMusicItem.getmMusicTitle()==null) {
+            mBtnDetails.setText("歌曲名无法显示");
+        }else {
+            mBtnDetails.setText("正在播放:" + mMusicItem.getmMusicTitle());
+        }
+            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
+        performItemClick(position);
+
+    }
+
+    private void performItemClick(int position){
         mMusicItem = mMusicItemAdapter.getItem(position);
         mMusicItem.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mMusicItem.getmId()).getPath());
         Log.d("MainActivity", "mCurrentPlayingPath:"+mCurrentPlayingPath);
         Log.d("MainActivity", "mMusicItem.getPath():"+mMusicItem.getPath());
         if ((mCurrentPlayingPath==null)||
-                (mMusicItem.getPath().compareTo(mCurrentPlayingPath)!=0)){
+                (mMusicItem.getPath().compareTo(mCurrentPlayingPath)!=0)){//第一次打开app播放||选择非"正在播放"的歌曲
+
             playController.destroy();
             playController.setPlayState(PlayStateConstant.IS_STOP);
             updataButtonUI();
@@ -114,15 +125,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startService(intentService);
         }
         else {
-            Log.d("MainActivity", "点击同一首歌:"+mMusicItem.getmMusicTitle()+",于是啥也不干");
+            if (playController.getPlayState() == PlayStateConstant.ISPAUSE){//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
+                playController.play();
+                playController.setPlayState(PlayStateConstant.ISPLAYING);
+
+                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+            }else {
+                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getmMusicTitle() + ",于是啥也不干");
+            }
         }
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        playController.destroy();
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        playController.destroy();
+    }
 }
 
 

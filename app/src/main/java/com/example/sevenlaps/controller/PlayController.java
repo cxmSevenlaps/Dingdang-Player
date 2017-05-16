@@ -123,6 +123,10 @@ public class PlayController {
     }
 
 
+    public void playNext(){
+
+    }
+
     public void seekTo(int progress){
         mediaPlayer.seekTo(progress);
     }
@@ -150,4 +154,6 @@ public class PlayController {
 //            }, 5, 500);
 //        }
 //    }
+
+
 }
