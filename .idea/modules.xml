@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/DingDangPlayer.iml" filepath="$PROJECT_DIR$/DingDangPlayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/Dingdang-Player.iml" filepath="$PROJECT_DIR$/Dingdang-Player.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
