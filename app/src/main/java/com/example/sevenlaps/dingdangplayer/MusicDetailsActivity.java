@@ -24,6 +24,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     private ImageButton mIbtnPlayOrPause;
     private ImageButton mIbtnPlayPrevious;
+    private ImageButton mIbtnPlayNext;
 
     private PlayController playController = PlayController.getInstance();
 
@@ -79,6 +80,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayPrevious = (ImageButton) findViewById(R.id.ibtn_details_play_previous);
         mIbtnPlayPrevious.setImageResource(R.mipmap.play_previous);
         mIbtnPlayPrevious.setOnClickListener(this);
+        mIbtnPlayNext = (ImageButton)findViewById(R.id.ibtn_details_play_next);
+        mIbtnPlayNext.setImageResource(R.mipmap.play_next);
+        mIbtnPlayNext.setOnClickListener(this);
 
     }
 
@@ -97,12 +101,25 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             case R.id.ibtn_details_play_or_pause:
                 performBtnPlayOrPauseClick();
                 break;
-            default:
+            case R.id.ibtn_details_play_previous:
                 performBtnPlayPrevious();
                 break;
+            case R.id.ibtn_details_play_next:
+                performBtnPlayNext();
         }
     }
 
+    private void performBtnPlayNext(){
+        playController.destroy();
+        playController.setPlayState(PlayStateConstant.IS_STOP);
+        Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
+        stopService(intentService);
+
+        intentService.putExtra("id",playController.getIsPlayingId()+1);
+        playController.setIsPlayingId(playController.getIsPlayingId()+1);
+
+        startService(intentService);
+    }
     private void performBtnPlayPrevious() {
         playController.destroy();
         playController.setPlayState(PlayStateConstant.IS_STOP);
