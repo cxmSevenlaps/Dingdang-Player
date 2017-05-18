@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        initList(mMusicList);//测试Listview显示使用
         mMusicList = DatabaseModel.getDatabaseModelInstance(this).loadMusic(this);
         mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
+        playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
         mMusicListView.setAdapter(mMusicItemAdapter);
 
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);

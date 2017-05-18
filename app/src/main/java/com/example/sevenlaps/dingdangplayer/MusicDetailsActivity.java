@@ -125,10 +125,10 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         playController.setPlayState(PlayStateConstant.IS_STOP);
         Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
         stopService(intentService);
-        if (playController.getIsPlayingId() == 0) {
+        if (playController.getIsPlayingId() == 1) {
 
-            intentService.putExtra("id", DatabaseModel.getDatabaseModelInstance(this).getItemsQuantity()-1);
-            playController.setIsPlayingId(DatabaseModel.getDatabaseModelInstance(this).getItemsQuantity()-1);
+            intentService.putExtra("id", playController.getNumberOfSongs());
+            playController.setIsPlayingId(playController.getNumberOfSongs());
         }else {
 
             intentService.putExtra("id", playController.getIsPlayingId()-1);

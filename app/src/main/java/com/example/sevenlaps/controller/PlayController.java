@@ -13,12 +13,21 @@ public class PlayController {
     private static final String PLAY_CONTROLLER_LOG="PlayController";
     private int playState=PlayStateConstant.IS_STOP;
     private MediaPlayer mediaPlayer;
-    private int isPlayingId;
+    private int isPlayingId;  //记录正在播放的歌曲的id
+    private int numberOfSongs = 0;//记录ListView中的歌曲数量
     private String path;
     private Timer mTimer;
 
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
+    }
+
+    public int getNumberOfSongs() {
+        return numberOfSongs;
+    }
+
+    public void setNumberOfSongs(int numberOfSongs) {
+        this.numberOfSongs = numberOfSongs;
     }
 
     public String getPath() {
@@ -64,6 +73,7 @@ public class PlayController {
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(playControllerInstance.getPath());
                 Log.d(PLAY_CONTROLLER_LOG, "path:" + playControllerInstance.getPath());
+                Log.d(PLAY_CONTROLLER_LOG, "playing song id is: "+playControllerInstance.getIsPlayingId());
 //            mediaPlayer.setAudioAttributes(AudioAttributes.CONTENT_TYPE_MUSIC);
             mediaPlayer.prepare();
 //                mediaPlayer.prepareAsync();
