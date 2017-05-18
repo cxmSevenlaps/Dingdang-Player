@@ -115,9 +115,13 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
         stopService(intentService);
 
-        intentService.putExtra("id",playController.getIsPlayingId()+1);
-        playController.setIsPlayingId(playController.getIsPlayingId()+1);
-
+        if (playController.getIsPlayingId()==playController.getNumberOfSongs()){
+            intentService.putExtra("id",1);//第一首歌ID是1，1是起始值
+            playController.setIsPlayingId(1);
+        }else {
+            intentService.putExtra("id", playController.getIsPlayingId() + 1);
+            playController.setIsPlayingId(playController.getIsPlayingId() + 1);
+        }
         startService(intentService);
     }
     private void performBtnPlayPrevious() {
@@ -125,7 +129,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         playController.setPlayState(PlayStateConstant.IS_STOP);
         Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
         stopService(intentService);
-        if (playController.getIsPlayingId() == 1) {
+        if (playController.getIsPlayingId() == 1) {//第一首歌ID是1，1是起始值
 
             intentService.putExtra("id", playController.getNumberOfSongs());
             playController.setIsPlayingId(playController.getNumberOfSongs());
