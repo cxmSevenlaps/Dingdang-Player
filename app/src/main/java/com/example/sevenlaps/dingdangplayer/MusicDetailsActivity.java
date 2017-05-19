@@ -13,6 +13,8 @@ import com.example.sevenlaps.controller.PlayController;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
+import java.text.SimpleDateFormat;
+
 import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
 
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener {
@@ -50,8 +52,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
         updateTitleTextView();
         updateArtistTextView();
-        mTextViewDuration.setText(mMusicItem.getDuration());
-
+        updateDurationTextView();
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -83,6 +84,18 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
         mIbtnPlayNext.setOnClickListener(this);
 
+    }
+
+    private void updateDurationTextView(){
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        if (null == mMusicItem) {
+            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            return;
+        }
+        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+        long duration = Long.parseLong(mMusicItem.getDuration());
+        SimpleDateFormat sdf=new SimpleDateFormat("mm:ss");
+        mTextViewDuration.setText(sdf.format(duration));
     }
 
     private void updateTitleTextView(){
@@ -155,6 +168,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         startService(intentService);
         updateTitleTextView();
         updateArtistTextView();
+        updateDurationTextView();
     }
     private void performBtnPlayPrevious() {
         playController.destroy();
@@ -173,6 +187,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         startService(intentService);
         updateTitleTextView();
         updateArtistTextView();
+        updateDurationTextView();
     }
 
     private void performBtnPlayOrPauseClick() {
