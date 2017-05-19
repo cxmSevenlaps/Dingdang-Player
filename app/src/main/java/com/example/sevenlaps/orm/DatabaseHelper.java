@@ -14,6 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             +"id integer primary key autoincrement, "
             +"title text, "
             +"artist text, "
+            +"duration text,"
             + "path text)";
     private Context mContext;
 

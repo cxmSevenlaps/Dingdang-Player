@@ -16,6 +16,12 @@
         android:layout_height="35dp"
         android:textSize="50px"
         android:gravity="center"/>
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="50px"
+        android:gravity="center"/>
 
 
 

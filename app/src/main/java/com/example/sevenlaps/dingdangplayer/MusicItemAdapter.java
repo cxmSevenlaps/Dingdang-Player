@@ -44,18 +44,18 @@ public class MusicItemAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        if((mMusicList.get(position).getmMusicTitle() == null)
+        if((mMusicList.get(position).getMusicTitle() == null)
                 &&(mMusicList.get(position).getmArtist() == null)){
             holder.tvArtist.setText("未知艺术家");
             holder.tvTitle.setText("未知歌曲");
-        }else if (mMusicList.get(position).getmMusicTitle() == null) {
+        }else if (mMusicList.get(position).getMusicTitle() == null) {
             holder.tvTitle.setText("未知歌曲");
             holder.tvArtist.setText(mMusicList.get(position).getmArtist());
         }else if(mMusicList.get(position).getmArtist() == null){
             holder.tvArtist.setText("未知艺术家");
-            holder.tvTitle.setText(mMusicList.get(position).getmMusicTitle());
+            holder.tvTitle.setText(mMusicList.get(position).getMusicTitle());
         }else{
-            holder.tvTitle.setText(mMusicList.get(position).getmMusicTitle());
+            holder.tvTitle.setText(mMusicList.get(position).getMusicTitle());
             holder.tvArtist.setText(mMusicList.get(position).getmArtist());
         }
         return convertView;

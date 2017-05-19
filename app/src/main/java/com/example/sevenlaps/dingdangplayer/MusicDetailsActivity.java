@@ -18,6 +18,7 @@ import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView mTextViewArtist;
     private TextView mTextViewTitle;
+    private TextView mTextViewDuration;
     private int mMusicId;
     private MusicItem mMusicItem;
     private static SeekBar mSeekBar;
@@ -37,6 +38,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
         mTextViewTitle = (TextView) findViewById(R.id.tv_title);
         mTextViewArtist = (TextView) findViewById(R.id.tv_artist);
+        mTextViewDuration = (TextView) findViewById(R.id.tv_duration);
 
         Intent intent = getIntent();
         mMusicId = intent.getIntExtra("id", -2);
@@ -50,10 +52,11 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             Log.d("MusicDetailsActivity", "mMusicItem is null");
             return;
         }
-        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getmMusicTitle());
+        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
 
         updateTitleTextView();
         updateArtistTextView();
+        mTextViewDuration.setText(mMusicItem.getDuration());
 
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
@@ -89,10 +92,10 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateTitleTextView(){
-        if (mMusicItem.getmMusicTitle()==null){
+        if (mMusicItem.getMusicTitle()==null){
             mTextViewTitle.setText("--未知歌曲--");
         }else{
-            mTextViewTitle.setText("－"+mMusicItem.getmMusicTitle()+"－");
+            mTextViewTitle.setText("－"+mMusicItem.getMusicTitle()+"－");
         }
     }
 

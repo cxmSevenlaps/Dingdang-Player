@@ -95,10 +95,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateButtonUI() {
         MusicItem item;
         item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
-        if (item.getmMusicTitle() == null) {
+        if (item.getMusicTitle() == null) {
             mBtnDetails.setText("歌曲名无法显示");
         } else {
-            mBtnDetails.setText("正在播放:" + item.getmMusicTitle());
+            mBtnDetails.setText("正在播放:" + item.getMusicTitle());
         }
 
         switch (playController.getPlayState()) {
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
             } else {
-                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getmMusicTitle() + ",于是啥也不干");
+                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getMusicTitle() + ",于是啥也不干");
             }
         }
     }

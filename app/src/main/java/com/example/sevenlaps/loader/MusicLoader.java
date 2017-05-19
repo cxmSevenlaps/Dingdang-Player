@@ -28,33 +28,35 @@ public class MusicLoader {
     }
 
     /**
-     *
      * @param parentDir
      * @return
      */
-    public List<MusicItem> loadMusicListFromSDCard(final String parentDir){
+    public List<MusicItem> loadMusicListFromSDCard(final String parentDir) {
         List<MusicItem> musicItemList = new ArrayList<>();
         List<File> fileList = FileUtils.getFilesByPathAndSuffix(parentDir, FLAC);
-        for (File file:fileList){
+        for (File file : fileList) {
             musicItemList.add(loadMusicItemFromMusicFile(file));
         }
 
         return musicItemList;
     }
 
-    private MusicItem loadMusicItemFromMusicFile(File musicFile){
+    private MusicItem loadMusicItemFromMusicFile(File musicFile) {
         mMediaMetadataRetriever.setDataSource(musicFile.getAbsolutePath());
         MusicItem item = new MusicItem();
         item.setmArtist(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
-        item.setmMusicTitle(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+        item.setMusicTitle(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+        item.setDuration(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         item.setPath(musicFile.getAbsolutePath());
-        Log.d("MusicLoader", ""+item.getmArtist()+"  "+item.getmMusicTitle()+"path:"+item.getPath());
+        Log.d("MusicLoader", "" + item.getmArtist() + "  " + item.getMusicTitle() + "path:" + item.getPath()
+                + "  "+ "duration:" + item.getDuration());
         return item;
     }
 
 
     /**
      * 用ContentResolver从整个sd卡中取音乐文件的方法,方法的问题可能在于无法持续监听某个文件夹。
+     *
      * @param context
      * @return
      */
@@ -66,27 +68,27 @@ public class MusicLoader {
             return null;
         }
         Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-        if (null==cursor){
+        if (null == cursor) {
             return null;
         }
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 MusicItem item = new MusicItem();
                 String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                 String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                if ("<unknown>".equals(artist)){
+                if ("<unknown>".equals(artist)) {
                     artist = "未知艺术家";
                 }
                 String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                String subStringMp3 = displayName.substring(displayName.length()-3, displayName.length());
-                String subStringFlac = displayName.substring(displayName.length()-4, displayName.length());
-                if (subStringFlac.equals("flac")||subStringMp3.equals("mp3")){
-                    item.setmMusicTitle(title);
+                String subStringMp3 = displayName.substring(displayName.length() - 3, displayName.length());
+                String subStringFlac = displayName.substring(displayName.length() - 4, displayName.length());
+                if (subStringFlac.equals("flac") || subStringMp3.equals("mp3")) {
+                    item.setMusicTitle(title);
                     item.setmArtist(artist);
                     list.add(item);
                 }
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
 
         return list;

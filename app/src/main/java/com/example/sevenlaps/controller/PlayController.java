@@ -5,13 +5,16 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.Timer;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+
 /**
  * Created by 7laps on 2017/5/10.
  */
 
 public class PlayController {
-    private static final String PLAY_CONTROLLER_LOG="PlayController";
-    private int playState=PlayStateConstant.IS_STOP;
+    private static final String PLAY_CONTROLLER_LOG = "PlayController";
+    private int playState = PlayStateConstant.IS_STOP;
     private MediaPlayer mediaPlayer;
     private int isPlayingId;  //记录正在播放的歌曲的id
     private int numberOfSongs = 0;//记录ListView中的歌曲数量
@@ -61,117 +64,66 @@ public class PlayController {
         this.playState = playState;
     }
 
-    public static PlayController getInstance(){
+    public static PlayController getInstance() {
         return playControllerInstance;
     }
 
 
-    public void play(){
+    public void play() {
         Log.d(PLAY_CONTROLLER_LOG, "play()");
-        if (playState==PlayStateConstant.IS_STOP) {
+        if (playState == PlayStateConstant.IS_STOP) {
             try {
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(playControllerInstance.getPath());
                 Log.d(PLAY_CONTROLLER_LOG, "path:" + playControllerInstance.getPath());
-                Log.d(PLAY_CONTROLLER_LOG, "playing song id is: "+playControllerInstance.getIsPlayingId());
-//            mediaPlayer.setAudioAttributes(AudioAttributes.CONTENT_TYPE_MUSIC);
-            mediaPlayer.prepare();
-//                mediaPlayer.prepareAsync();
-//                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                    @Override
-//                    public void onPrepared(MediaPlayer mp) {
-//                        if (!mediaPlayer.isPlaying()) {
-                            mediaPlayer.start();
-////                        addTimer();
-                            playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
-
-//                        }
-//                    }
-//                });
+                Log.d(PLAY_CONTROLLER_LOG, "playing song id is: " + playControllerInstance.getIsPlayingId());
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else if(playState==PlayStateConstant.ISPAUSE){//如果歌曲处于暂停状态，就不去重新设定mediaPlayer
+        } else if (playState == PlayStateConstant.ISPAUSE) {//如果歌曲处于暂停状态，就不去重新设定mediaPlayer
             mediaPlayer.start();
             playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
         }
 
     }
-    public void pause(){
+
+    public void pause() {
         Log.d(PLAY_CONTROLLER_LOG, "pause()");
-        if (mediaPlayer.isPlaying()){
+        if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             playControllerInstance.setPlayState(PlayStateConstant.ISPAUSE);
         }
     }
 
-//    public void initMediaPlayer(String path){
-//        Log.d(PLAY_CONTROLLER_LOG, "initMediaPlayer(String path)"+path);
-//        try {
-//            mediaPlayer.setDataSource(path);
-////            mediaPlayer.setAudioAttributes(AudioAttributes.CONTENT_TYPE_MUSIC);
-////            mediaPlayer.prepare();
-//            mediaPlayer.prepareAsync();
-//            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                @Override
-//                public void onPrepared(MediaPlayer mp) {
-//
-//                }
-//            });
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//    }
 
-    public void destroy(){
+    public void destroy() {
         Log.d(PLAY_CONTROLLER_LOG, "destroy()");
-        if (mediaPlayer!=null){
+        if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
             playControllerInstance.setPlayState(PlayStateConstant.IS_STOP);
         }
 
-        if(mTimer!=null){
+        if (mTimer != null) {
             mTimer.cancel();
-            mTimer=null;
+            mTimer = null;
         }
     }
 
 
-    public void playPrevious(){
+    public void playPrevious() {
 
     }
 
-    public void seekTo(int progress){
+    public void seekTo(int progress) {
         mediaPlayer.seekTo(progress);
     }
 
-//    public void addTimer(){
-//        if(mTimer == null){
-//            mTimer = new Timer();//timer就是开启子线程执行任务，与纯粹的子线程不同的是可以控制子线城执行的时间，
-//            mTimer.schedule(new TimerTask() {
-//
-//                @Override
-//                public void run() {
-//                    //获取歌曲总时长
-//                    int duration = mediaPlayer.getDuration();
-//                    //获取歌曲当前播放进度
-//                    int currentPosition= mediaPlayer.getCurrentPosition();
-//                    Message msg = MusicDetailsActivity.handler.obtainMessage();
-//                    //把进度封装至消息对象中
-//                    Bundle bundle = new Bundle();
-//                    bundle.putInt("duration", duration);
-//                    bundle.putInt("currentPosition", currentPosition);
-//                    msg.setData(bundle);
-//                    MusicDetailsActivity.handler.sendMessage(msg);
-//                }
-//                //开始计时任务后的5毫秒后第一次执行run方法，以后每500毫秒执行一次
-//            }, 5, 500);
-//        }
-//    }
+
 
 
 }

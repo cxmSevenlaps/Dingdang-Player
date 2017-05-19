@@ -7,9 +7,10 @@ package com.example.sevenlaps.dingdangplayer;
 public class MusicItem {
 
     private int mId;  //歌曲在数据库里面的ID，播放歌曲时候获取歌曲信息都靠传这个ID
-    private String mMusicTitle;
+    private String musicTitle;
     private String mArtist;
-    private String Path;
+    private String path;
+    private String duration;
 
     public MusicItem(){}
 
@@ -23,12 +24,20 @@ public class MusicItem {
 //    }
 
 
-    public String getmMusicTitle() {
-        return mMusicTitle;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setmMusicTitle(String mMusicTitle) {
-        this.mMusicTitle = mMusicTitle;
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getMusicTitle() {
+        return musicTitle;
+    }
+
+    public void setMusicTitle(String musicTitle) {
+        this.musicTitle = musicTitle;
     }
 
     public String getmArtist() {
@@ -48,10 +57,10 @@ public class MusicItem {
     }
 
     public String getPath() {
-        return Path;
+        return path;
     }
 
     public void setPath(String path) {
-        Path = path;
+        this.path = path;
     }
 }
