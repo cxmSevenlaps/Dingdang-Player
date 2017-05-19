@@ -14,6 +14,8 @@ import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
 
@@ -24,10 +26,15 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private int mMusicId;
     private MusicItem mMusicItem;
     private static SeekBar mSeekBar;
+    private SimpleDateFormat sdf;
 
     private ImageButton mIbtnPlayOrPause;
     private ImageButton mIbtnPlayPrevious;
     private ImageButton mIbtnPlayNext;
+
+    Timer mTimer;
+    TimerTask mTimeTask;
+    private boolean isChanging=false;//互斥变量，防止定时器与SeekBar拖动时进度冲突
 
     private PlayController playController = PlayController.getInstance();
 
@@ -55,6 +62,22 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateDurationTextView();
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
+
+        mSeekBar.setMax(playController.getMediaPlayer().getDuration());//设置进度条
+        //----------定时器记录播放进度---------//
+        mTimer = new Timer();
+        mTimeTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (isChanging==true)
+                {
+                    return;
+                }
+                mSeekBar.setProgress(playController.getMediaPlayer().getCurrentPosition());
+            }
+        };
+        mTimer.schedule(mTimeTask,0, 10);
+
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -94,7 +117,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
         Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
         long duration = Long.parseLong(mMusicItem.getDuration());
-        SimpleDateFormat sdf=new SimpleDateFormat("mm:ss");
+        sdf=new SimpleDateFormat("mm:ss");
         mTextViewDuration.setText(sdf.format(duration));
     }
 

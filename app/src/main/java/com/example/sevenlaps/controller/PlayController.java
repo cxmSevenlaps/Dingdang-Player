@@ -78,6 +78,9 @@ public class PlayController {
                 Log.d(PLAY_CONTROLLER_LOG, "path:" + playControllerInstance.getPath());
                 Log.d(PLAY_CONTROLLER_LOG, "playing song id is: " + playControllerInstance.getIsPlayingId());
                 mediaPlayer.prepare();
+
+
+
                 mediaPlayer.start();
                 playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
             } catch (IOException e) {
@@ -114,10 +117,6 @@ public class PlayController {
         }
     }
 
-
-    public void playPrevious() {
-
-    }
 
     public void seekTo(int progress) {
         mediaPlayer.seekTo(progress);

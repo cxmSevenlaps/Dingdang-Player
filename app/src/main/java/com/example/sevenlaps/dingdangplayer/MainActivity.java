@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void performBtnJumpToDetailsClick() {
+        if (playController.getIsPlayingId()==0)//防止还没选歌曲时候就点击，然后闪退
+        {
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
         intent.putExtra("id", mMusicItem.getmId());
 
