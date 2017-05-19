@@ -52,8 +52,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
         Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getmMusicTitle());
 
-        mTextViewArtist.setText(mMusicItem.getmArtist());
-        mTextViewTitle.setText(mMusicItem.getmMusicTitle());
+        updateTitleTextView();
+        updateArtistTextView();
 
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
@@ -90,14 +90,18 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     private void updateTitleTextView(){
         if (mMusicItem.getmMusicTitle()==null){
-
+            mTextViewTitle.setText("--未知歌曲--");
+        }else{
+            mTextViewTitle.setText("－"+mMusicItem.getmMusicTitle()+"－");
         }
-        mTextViewArtist.setText(mMusicItem.getmArtist());
-        mTextViewTitle.setText(mMusicItem.getmMusicTitle());
     }
 
     private void updateArtistTextView(){
-
+        if (mMusicItem.getmArtist()==null){
+            mTextViewArtist.setText("--未知艺术家--");
+        }else{
+            mTextViewArtist.setText("－"+mMusicItem.getmArtist()+"－");
+        }
     }
 
     private void initPlayOrPauseBtnImage() {
