@@ -34,6 +34,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_details);
 
+
         mTextViewTitle = (TextView) findViewById(R.id.tv_title);
         mTextViewArtist = (TextView) findViewById(R.id.tv_artist);
 
@@ -50,6 +51,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             return;
         }
         Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getmMusicTitle());
+
         mTextViewArtist.setText(mMusicItem.getmArtist());
         mTextViewTitle.setText(mMusicItem.getmMusicTitle());
 
@@ -83,6 +85,18 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext = (ImageButton)findViewById(R.id.ibtn_details_play_next);
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
         mIbtnPlayNext.setOnClickListener(this);
+
+    }
+
+    private void updateTitleTextView(){
+        if (mMusicItem.getmMusicTitle()==null){
+
+        }
+        mTextViewArtist.setText(mMusicItem.getmArtist());
+        mTextViewTitle.setText(mMusicItem.getmMusicTitle());
+    }
+
+    private void updateArtistTextView(){
 
     }
 

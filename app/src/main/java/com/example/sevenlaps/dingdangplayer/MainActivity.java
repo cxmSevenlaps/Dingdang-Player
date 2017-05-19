@@ -125,13 +125,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void performItemClick(int position) {
         mMusicItem = mMusicItemAdapter.getItem(position);
-        mMusicItem.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mMusicItem.getmId()).getPath());
+        mMusicItem.setPath(mMusicItem.getPath());
         Log.d("MainActivity", "mCurrentPlayingPath:" + mCurrentPlayingPath);
         Log.d("MainActivity", "mMusicItem.getPath():" + mMusicItem.getPath());
+
         if ((mCurrentPlayingPath == null) ||
                 (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
-
-            playController.destroy();
+//            if (mCurrentPlayingPath!=null){//不是刚打开app，还未点击列表歌曲的状态
+                playController.destroy();
+//            }
             mCurrentPlayingPath = mMusicItem.getPath();
             playController.setIsPlayingId(mMusicItem.getmId());
             Intent intentService = new Intent(MainActivity.this, MusicService.class);

@@ -45,6 +45,11 @@ public class DatabaseModel {
             //查完就赶紧更新数据库
             mMusicDao.insertItems(items);
         }
+        /*add begin by cxm 20170519  修改bug：刚安装完app时候，点击列表播放歌曲会闪退。原因是没有从数据库里面取，
+        导致歌曲mId没有初始化 */
+        items = loadMusicDataFromDatabase();//所有的歌曲数据都从数据库里面取
+        /*add end by cxm 20170519  修改bug：刚安装完app时候，点击列表播放歌曲会闪退。原因是没有从数据库里面取，
+        导致歌曲mId没有初始化 */
          return items;
     }
 

@@ -91,7 +91,7 @@ public class PlayController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else if(playState==PlayStateConstant.ISPAUSE){
+        }else if(playState==PlayStateConstant.ISPAUSE){//如果歌曲处于暂停状态，就不去重新设定mediaPlayer
             mediaPlayer.start();
             playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
         }

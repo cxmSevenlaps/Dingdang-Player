@@ -6,7 +6,7 @@ package com.example.sevenlaps.dingdangplayer;
 
 public class MusicItem {
 
-    private int mId;
+    private int mId;  //歌曲在数据库里面的ID，播放歌曲时候获取歌曲信息都靠传这个ID
     private String mMusicTitle;
     private String mArtist;
     private String Path;
