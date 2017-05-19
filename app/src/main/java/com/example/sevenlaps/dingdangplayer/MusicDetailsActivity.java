@@ -47,12 +47,6 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             finish();
             return;
         }
-        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mMusicId);
-        if (null == mMusicItem) {
-            Log.d("MusicDetailsActivity", "mMusicItem is null");
-            return;
-        }
-        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
 
         updateTitleTextView();
         updateArtistTextView();
@@ -92,6 +86,13 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateTitleTextView(){
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        if (null == mMusicItem) {
+            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            return;
+        }
+        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+
         if (mMusicItem.getMusicTitle()==null){
             mTextViewTitle.setText("--未知歌曲--");
         }else{
@@ -100,6 +101,13 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateArtistTextView(){
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        if (null == mMusicItem) {
+            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            return;
+        }
+        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+
         if (mMusicItem.getmArtist()==null){
             mTextViewArtist.setText("--未知艺术家--");
         }else{
@@ -143,7 +151,10 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             intentService.putExtra("id", playController.getIsPlayingId() + 1);
             playController.setIsPlayingId(playController.getIsPlayingId() + 1);
         }
+
         startService(intentService);
+        updateTitleTextView();
+        updateArtistTextView();
     }
     private void performBtnPlayPrevious() {
         playController.destroy();
@@ -160,6 +171,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             playController.setIsPlayingId(playController.getIsPlayingId()-1);
         }
         startService(intentService);
+        updateTitleTextView();
+        updateArtistTextView();
     }
 
     private void performBtnPlayOrPauseClick() {
