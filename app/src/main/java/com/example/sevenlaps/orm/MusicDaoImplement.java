@@ -99,7 +99,7 @@ public class MusicDaoImplement implements MusicDao {
                 item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
                 item.setDuration(cursor.getString(cursor.getColumnIndex("duration")));
                 items.add(item);
-                Log.d(TAG_MUSICE_DAO_IMPLEMENT, "add:  title: " + item.getMusicTitle() + " artist: " + item.getmArtist() + " id=" + item.getmId());
+                Log.d(TAG_MUSICE_DAO_IMPLEMENT, "add to list:  title: " + item.getMusicTitle() + " artist: " + item.getmArtist() + " id=" + item.getmId());
             } while (cursor.moveToNext());
         }
         cursor.close();

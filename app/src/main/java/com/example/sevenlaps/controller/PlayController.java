@@ -5,8 +5,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.Timer;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 /**
  * Created by 7laps on 2017/5/10.
@@ -111,10 +109,6 @@ public class PlayController {
             playControllerInstance.setPlayState(PlayStateConstant.IS_STOP);
         }
 
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer = null;
-        }
     }
 
 
