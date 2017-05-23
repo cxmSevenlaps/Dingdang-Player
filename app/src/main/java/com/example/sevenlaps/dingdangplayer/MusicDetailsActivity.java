@@ -21,15 +21,16 @@ import java.util.TimerTask;
 
 import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
 
-public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener {
+public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
     private static final int UPDATE_SEEKBAR_PROGRESS = 0;
     private TextView mTextViewArtist;
     private TextView mTextViewTitle;
     private TextView mTextViewDuration;
+    private TextView mTextViewCurrentTime;
     private int mMusicId;
     private MusicItem mMusicItem;
     private static SeekBar mSeekBar;
-    private SimpleDateFormat sdf;
+    private SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
 
     private ImageButton mIbtnPlayOrPause;
     private ImageButton mIbtnPlayPrevious;
@@ -52,6 +53,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mTextViewTitle = (TextView) findViewById(R.id.tv_title);
         mTextViewArtist = (TextView) findViewById(R.id.tv_artist);
         mTextViewDuration = (TextView) findViewById(R.id.tv_duration);
+        mTextViewCurrentTime = (TextView) findViewById(R.id.tv_current_time);
 
         Intent intent = getIntent();
         mMusicId = intent.getIntExtra("id", -2);
@@ -70,24 +72,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateSeekBar();
 
 
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {//手指抬起
-//                int progress = seekBar.getProgress();//拖动进度条,获取进度信息
-//                playController.seekTo(progress);
-
-            }
-        });
 
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
         initPlayOrPauseBtnImage();
@@ -109,7 +94,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
         Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
         long duration = Long.parseLong(mMusicItem.getDuration());
-        sdf = new SimpleDateFormat("mm:ss");
+//        sdf = new SimpleDateFormat("mm:ss");
         mTextViewDuration.setText(sdf.format(duration));
     }
 
@@ -287,6 +272,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                     case UPDATE_SEEKBAR_PROGRESS:
                         mSeekBar.setMax(playController.getMediaPlayer().getDuration());//设置进度条
                         mSeekBar.setProgress(playController.getMediaPlayer().getCurrentPosition());
+//                        sdf = new SimpleDateFormat("mm:ss");
+                        mTextViewCurrentTime.setText(sdf.format(playController.getMediaPlayer().getCurrentPosition()));
+
                         break;
                     default:
                         break;
@@ -300,6 +288,22 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         super.onDestroy();
         stopTimer();
     }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
 
     //    public static Handler handler = new Handler(){
 //        public void handleMessage(android.os.Message msg){

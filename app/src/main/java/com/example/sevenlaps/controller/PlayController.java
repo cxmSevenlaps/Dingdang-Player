@@ -10,7 +10,7 @@ import java.util.Timer;
  * Created by 7laps on 2017/5/10.
  */
 
-public class PlayController {
+public class PlayController extends MediaPlayer{
     private static final String PLAY_CONTROLLER_LOG = "PlayController";
     private int playState = PlayStateConstant.IS_STOP;
     private MediaPlayer mediaPlayer;
@@ -51,7 +51,13 @@ public class PlayController {
 
 
     private PlayController() {
+        super();
+        this.setOnCompletionListener(new OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
 
+            }
+        });
     }
 
     public int getPlayState() {
