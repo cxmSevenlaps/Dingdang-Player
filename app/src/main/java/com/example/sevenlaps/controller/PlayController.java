@@ -110,8 +110,12 @@ public class PlayController extends MediaPlayer {
         } else if (playState == PlayStateConstant.ISPAUSE) {//如果歌曲处于暂停状态，就不去重新设定mediaPlayer
             mediaPlayer.start();
             playControllerInstance.setPlayState(PlayStateConstant.ISPLAYING);
+        }else if (playState == PlayStateConstant.ISPLAYING){
+            mediaPlayer.pause();
+            playControllerInstance.setPlayState(PlayStateConstant.ISPAUSE);
         }
 
+        notifyStateChanged(playControllerInstance.getPlayState());
     }
 
     public void pause() {

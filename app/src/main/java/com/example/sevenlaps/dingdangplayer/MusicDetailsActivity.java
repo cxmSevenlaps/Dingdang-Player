@@ -19,8 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.example.sevenlaps.dingdangplayer.R.mipmap.play;
-
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, PlayController.OnMusicStateChangedListener {
     private static final String LOG_TAG = "MusicDetailsActivity";
     private static final int UPDATE_SEEKBAR_PROGRESS = 0;
@@ -86,7 +84,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
         mIbtnPlayNext.setOnClickListener(this);
 
-        updateView();
+        updateView(playController.getPlayState());
     }
 
     private void updateDurationTextView() {
@@ -128,18 +126,6 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             mTextViewArtist.setText("--未知艺术家--");
         } else {
             mTextViewArtist.setText("－" + mMusicItem.getmArtist() + "－");
-        }
-    }
-
-    /**
-     * 用于从其他页面跳转过来时候的初始化,根据单例的状态来更新iin
-     */
-    private void initPlayOrPauseBtnImage() {
-        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-            mIbtnPlayOrPause.setImageResource(play);
-        } else if (playController.getPlayState() == PlayStateConstant.ISPLAYING) {
-
-            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
         }
     }
 
@@ -219,16 +205,17 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void performBtnPlayOrPauseClick() {
-        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-            playController.play();
-            playController.setPlayState(PlayStateConstant.ISPLAYING);
-
-            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
-            playController.setPlayState(PlayStateConstant.ISPAUSE);
-            playController.pause();
-            mIbtnPlayOrPause.setImageResource(play);
-        }
+//        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
+//            playController.play();
+//            playController.setPlayState(PlayStateConstant.ISPLAYING);
+//
+//            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
+//        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
+//            playController.setPlayState(PlayStateConstant.ISPAUSE);
+//            playController.pause();
+//            mIbtnPlayOrPause.setImageResource(play);
+//        }
+        playController.play();
     }
 
     private void startTimer() {
@@ -319,19 +306,19 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
-        updateView();
+        updateView(playState);
     }
 
-    private void updateView(){
-        updateBtnPlayOrPauseImage();
+    private void updateView(int playState){
+        updateBtnPlayOrPauseImage(playState);
         updateTitleTextView();
         updateArtistTextView();
         updateDurationTextView();
     }
-    private void updateBtnPlayOrPauseImage(){
-        if (playController.getPlayState()==PlayStateConstant.ISPLAYING){
+    private void updateBtnPlayOrPauseImage(int playState){
+        if (playState==PlayStateConstant.ISPLAYING){
             mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-        }else if (playController.getPlayState()==PlayStateConstant.ISPAUSE){
+        }else if (playState==PlayStateConstant.ISPAUSE){
             mIbtnPlayOrPause.setImageResource(R.mipmap.play);
         }
     }

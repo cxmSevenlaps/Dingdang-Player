@@ -17,8 +17,9 @@ import com.example.sevenlaps.orm.DatabaseModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+        AdapterView.OnItemClickListener, PlayController.OnMusicStateChangedListener {
+private static final String LOG_TAG = "MainActivity";
     private ListView mMusicListView;
     private MusicItemAdapter mMusicItemAdapter;
     private List<MusicItem> mMusicList;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /*跳转到MusicDetailsActivity*/
         mMusicListView.setOnItemClickListener(this);
 
+        updateView(playController.getPlayState());
     }
 
     @Override
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * btn上显示正在播放的歌曲信息,设置播放图标
      */
-    private void updateButtonUI() {
+    private void updateButtonUI(int playState) {
         MusicItem item;
         item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
         if (item.getMusicTitle() == null) {
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBtnDetails.setText("正在播放:" + item.getMusicTitle());
         }
 
-        switch (playController.getPlayState()) {
+        switch (playState) {
             case PlayStateConstant.ISPLAYING:
             case PlayStateConstant.IS_STOP:
                 mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intentService = new Intent(MainActivity.this, MusicService.class);
             intentService.putExtra("id", mMusicItem.getmId());
             startService(intentService);
-            updateButtonUI();
+            updateButtonUI(playController.getPlayState());
         } else {
             if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
                 playController.play();
@@ -170,7 +172,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onRestart() {
         super.onRestart();
-        updateButtonUI();
+//        updateButtonUI(playController.getPlayState());
+    }
+
+    @Override
+    public void onMusicStateChanged(int playState) {
+        Log.d(LOG_TAG, "onMusicStateChanged");
+        updateView(playState);
+    }
+    private void updateView(int playState){
+        updateButtonUI(playState);
     }
 }
 
