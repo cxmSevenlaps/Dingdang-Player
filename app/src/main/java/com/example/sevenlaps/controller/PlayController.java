@@ -118,13 +118,13 @@ public class PlayController extends MediaPlayer {
         notifyStateChanged(playControllerInstance.getPlayState());
     }
 
-    public void pause() {
-        Log.d(PLAY_CONTROLLER_LOG, "pause()");
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            playControllerInstance.setPlayState(PlayStateConstant.ISPAUSE);
-        }
-    }
+//    public void pause() {
+//        Log.d(PLAY_CONTROLLER_LOG, "pause()");
+//        if (mediaPlayer.isPlaying()) {
+//            mediaPlayer.pause();
+//            playControllerInstance.setPlayState(PlayStateConstant.ISPAUSE);
+//        }
+//    }
 
 
     public void destroy() {

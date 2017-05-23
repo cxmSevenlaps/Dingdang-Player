@@ -34,6 +34,7 @@ private static final String LOG_TAG = "MainActivity";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        playController.addMusicStateChangedListener(this);
 
         mMusicListView = (ListView) findViewById(R.id.listview_music_list);
         mMusicList = new ArrayList<MusicItem>();
@@ -72,16 +73,18 @@ private static final String LOG_TAG = "MainActivity";
     }
 
     private void performBtnPlayOrPauseClick() {
-        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-            playController.play();
-            playController.setPlayState(PlayStateConstant.ISPLAYING);
+//        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
+//            playController.play();
+//            playController.setPlayState(PlayStateConstant.ISPLAYING);
+//
+//            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+//        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
+//            playController.setPlayState(PlayStateConstant.ISPAUSE);
+//            playController.getInstance().pause();
+//            mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+//        }
+        playController.play();
 
-            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
-            playController.setPlayState(PlayStateConstant.ISPAUSE);
-            playController.getInstance().pause();
-            mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-        }
     }
 
     private void performBtnJumpToDetailsClick() {
@@ -109,8 +112,10 @@ private static final String LOG_TAG = "MainActivity";
 
         switch (playState) {
             case PlayStateConstant.ISPLAYING:
-            case PlayStateConstant.IS_STOP:
                 mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+                break;
+            case PlayStateConstant.IS_STOP:
+                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
                 break;
             case PlayStateConstant.ISPAUSE:
 
