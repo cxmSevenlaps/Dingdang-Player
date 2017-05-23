@@ -54,6 +54,7 @@ public class MusicService extends Service {
     public void onDestroy() {
 
         super.onDestroy();
+        Log.d(MUSIC_SERVICE_LOG, "MusicService onDestroy()");
         mPlayController.destroy();
     }
 }

@@ -167,6 +167,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 //                stopTimer();
                 performBtnPlayNext();
                 initPlayOrPauseBtnImage();
+
 //                updateSeekBar();
                 break;
             default:
@@ -174,14 +175,16 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /**
+     * 点击播放下一曲
+     */
     private void performBtnPlayNext() {
 
         playController.destroy();
-
-
         playController.setPlayState(PlayStateConstant.IS_STOP);
         Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
         stopService(intentService);
+
 
         if (playController.getIsPlayingId() == playController.getNumberOfSongs()) {
             intentService.putExtra("id", 1);//第一首歌ID是1，1是起始值
@@ -195,7 +198,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateTitleTextView();
         updateArtistTextView();
         updateDurationTextView();
-//        updateSeekBar();
+
     }
 
     private void performBtnPlayPrevious() {
@@ -203,6 +206,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         playController.setPlayState(PlayStateConstant.IS_STOP);
         Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
         stopService(intentService);
+
         if (playController.getIsPlayingId() == 1) {//第一首歌ID是1，1是起始值
 
             intentService.putExtra("id", playController.getNumberOfSongs());
@@ -241,21 +245,12 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                 @Override
                 public void run() {
                     sendMessage(UPDATE_SEEKBAR_PROGRESS);
-
-                    do {
-                        try {
-                            Thread.sleep(1000);
-                            Log.d("MusicDtailsActivity", "mTimerTask is sleeping");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    } while (playController.getPlayState() == PlayStateConstant.IS_STOP);
                 }
             };
         }
 
         if ((mTimerTask != null) && (mTimer != null)) {
-            mTimer.schedule(mTimerTask, 0, 10);
+            mTimer.schedule(mTimerTask, 0, 1000);
         }
     }
 
@@ -283,7 +278,6 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateSeekBar() {
-        mSeekBar.setMax(playController.getMediaPlayer().getDuration());//设置进度条
 
         startTimer();
         mHandler = new Handler() {
@@ -291,7 +285,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case UPDATE_SEEKBAR_PROGRESS:
-                        updateSeekBarProgress();
+                        mSeekBar.setMax(playController.getMediaPlayer().getDuration());//设置进度条
+                        mSeekBar.setProgress(playController.getMediaPlayer().getCurrentPosition());
                         break;
                     default:
                         break;
@@ -303,7 +298,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        stopTimer();
+        stopTimer();
     }
 
     //    public static Handler handler = new Handler(){
