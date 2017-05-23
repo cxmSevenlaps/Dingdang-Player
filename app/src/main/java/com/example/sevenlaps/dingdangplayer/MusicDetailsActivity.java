@@ -128,6 +128,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /**
+     * 用于从其他页面跳转过来时候的初始化,根据单例的状态来更新
+     */
     private void initPlayOrPauseBtnImage() {
         if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
             mIbtnPlayOrPause.setImageResource(play);
@@ -146,12 +149,12 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.ibtn_details_play_previous:
                 performBtnPlayPrevious();
-                initPlayOrPauseBtnImage();
+                mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
                 break;
             case R.id.ibtn_details_play_next:
 //                stopTimer();
                 performBtnPlayNext();
-                initPlayOrPauseBtnImage();
+                mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
 
 //                updateSeekBar();
                 break;
