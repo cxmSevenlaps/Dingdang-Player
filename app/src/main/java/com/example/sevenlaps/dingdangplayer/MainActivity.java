@@ -1,7 +1,10 @@
 package com.example.sevenlaps.dingdangplayer;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +31,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MusicItem mMusicItem;
     private PlayController playController = PlayController.getInstance();
     private String mCurrentPlayingPath = null;
+
+    private MusicService mBoundService;
+    private boolean mIsBound = false;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBoundService = ((MusicService.MusicBinder) service).getService();
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBoundService = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(MainActivity.this, MusicService.class), mConnection, BIND_AUTO_CREATE);
+        mIsBound = false;
+    }
+    private void duUnbindService(){
+        if (mIsBound==true){
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         /*跳转到MusicDetailsActivity*/
         mMusicListView.setOnItemClickListener(this);
+
+        doBindService();
 
         updateView(playController.getPlayState());
     }
@@ -130,10 +161,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void performItemClick(int position) {
-//        mMusicItem = mMusicItemAdapter.getItem(position);
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
                 .getMusicItemById(mMusicItemAdapter.getItem(position).getmId());
-//        mMusicItem.setPath(mMusicItem.getPath());
         Log.d(LOG_TAG, "performItemClick");
         Log.d(LOG_TAG, "mCurrentPlayingPath:" + mCurrentPlayingPath);
         Log.d(LOG_TAG, "mMusicItem.getPath():" + mMusicItem.getPath());
@@ -192,13 +221,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 }
 
 
-    /*测试Listview显示使用*/
-//    private void initList(List<MusicItem> musicList){
-//        MusicItem item = new MusicItem("忘情水", "刘德华");
-//        for (int i = 0; i<40; i++){
-//            musicList.add(item);
-//        }
-//    }
+
 
 
 

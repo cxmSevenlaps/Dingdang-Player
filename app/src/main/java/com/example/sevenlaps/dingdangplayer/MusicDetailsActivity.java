@@ -18,7 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, PlayController.OnMusicStateChangedListener {
+public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener,
+        SeekBar.OnSeekBarChangeListener, PlayController.OnMusicStateChangedListener {
     private static final String LOG_TAG = "MusicDetailsActivity";
     private static final int UPDATE_SEEKBAR_PROGRESS = 0;
     private TextView mTextViewArtist;

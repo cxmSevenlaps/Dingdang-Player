@@ -2,59 +2,43 @@ package com.example.sevenlaps.dingdangplayer;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.example.sevenlaps.controller.PlayController;
-import com.example.sevenlaps.controller.PlayStateConstant;
-import com.example.sevenlaps.orm.DatabaseModel;
 
 public class MusicService extends Service {
-    private static final String MUSIC_SERVICE_LOG="MusicService";
-    private PlayController mPlayController;
 
-    public MusicService() {
-    }
-
+    private static final String LOG_TAG="MusicService";
+    private final IBinder musicBinder = new MusicBinder();
+    private PlayController mPlayController = PlayController.getInstance();
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return musicBinder;
     }
+
+
 
     @Override
     public void onCreate() {
-
-        Log.d(MUSIC_SERVICE_LOG, "MusicService onCreate()");
-        mPlayController = PlayController.getInstance();
         super.onCreate();
+        Log.d(LOG_TAG,"onCreate()");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(MUSIC_SERVICE_LOG, "MusicService onStartCommand()");
-        int id = intent.getIntExtra("id", -1);
-
-        if (-1!=id){
-            Log.d(MUSIC_SERVICE_LOG, " id="+id);
-            MusicItem item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(id);
-            if (null!=item) {
-                mPlayController.setIsPlayingId(id);
-                mPlayController.setPath(item.getPath());
-                mPlayController.play();
-                mPlayController.setPlayState(PlayStateConstant.ISPLAYING);
-            }
-        }
-
-
+        Log.d(LOG_TAG,"onStartCommand(Intent intent, int flags, int startId)");
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public void onDestroy() {
+    class MusicBinder extends Binder{
+        MusicService getService(){
+            Log.d(LOG_TAG, "getService()");
+            return MusicService.this;
+        }
 
-        super.onDestroy();
-        Log.d(MUSIC_SERVICE_LOG, "MusicService onDestroy()");
-        mPlayController.destroy();
+
+
     }
 }

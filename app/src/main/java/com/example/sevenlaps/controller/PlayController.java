@@ -14,7 +14,7 @@ import java.util.Timer;
  * Created by 7laps on 2017/5/10.
  */
 
-public class PlayController extends MediaPlayer {
+public class PlayController{
 
     public interface OnMusicStateChangedListener {
         public void onMusicStateChanged(int playState);
@@ -88,6 +88,10 @@ public class PlayController extends MediaPlayer {
         return playControllerInstance;
     }
 
+    /**
+     * 播放:可以用在MainActivity的列表点击,也可以用于其他的直接播放场景
+     * @param item
+     */
     public void play(MusicItem item) {
         Log.d(LOG_TAG, "play(MusicItem item)");
 
@@ -134,6 +138,9 @@ public class PlayController extends MediaPlayer {
         notifyStateChanged(playControllerInstance.getPlayState());
     }
 
+    /**
+     * 用于播放/暂停按钮
+     */
     public void playOrPause() {
         Log.d(LOG_TAG, " playOrPause");
         switch (playState) {
