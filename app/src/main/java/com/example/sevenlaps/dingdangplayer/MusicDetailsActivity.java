@@ -158,64 +158,34 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
      */
     private void performBtnPlayNext() {
 
-        playController.destroy();
-        playController.setPlayState(PlayStateConstant.IS_STOP);
-        Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
-        stopService(intentService);
-
-
-        if (playController.getIsPlayingId() == playController.getNumberOfSongs()) {
-            intentService.putExtra("id", 1);//第一首歌ID是1，1是起始值
-            playController.setIsPlayingId(1);
+        if (playController.getIsPlayingId() == playController.getNumberOfSongs()){
+            playController.play(DatabaseModel
+                    .getDatabaseModelInstance(this).getMusicItemById(1));
         } else {
-            intentService.putExtra("id", playController.getIsPlayingId() + 1);
-            playController.setIsPlayingId(playController.getIsPlayingId() + 1);
+
+            playController.play(DatabaseModel
+                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() + 1));
         }
 
-        startService(intentService);
-        updateTitleTextView();
-        updateArtistTextView();
-        updateDurationTextView();
 
     }
 
+    /**
+     * 点击播放上一曲
+     */
     private void performBtnPlayPrevious() {
-        playController.destroy();
-        playController.setPlayState(PlayStateConstant.IS_STOP);
-        Intent intentService = new Intent(MusicDetailsActivity.this, MusicService.class);
-        stopService(intentService);
 
         if (playController.getIsPlayingId() == 1) {//第一首歌ID是1，1是起始值
-
-            intentService.putExtra("id", playController.getNumberOfSongs());
-            playController.setIsPlayingId(playController.getNumberOfSongs());
+            playController.play(DatabaseModel
+                    .getDatabaseModelInstance(this).getMusicItemById(playController.getNumberOfSongs()));
         } else {
-
-            intentService.putExtra("id", playController.getIsPlayingId() - 1);
-            playController.setIsPlayingId(playController.getIsPlayingId() - 1);
+            playController.play(DatabaseModel
+                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() - 1));
         }
-        startService(intentService);
-        updateTitleTextView();
-        updateArtistTextView();
-        updateDurationTextView();
-    }
-
-    private void performBtnPlayOrPause(){
-
     }
 
     private void performBtnPlayOrPauseClick() {
-//        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-//            playController.play();
-//            playController.setPlayState(PlayStateConstant.ISPLAYING);
-//
-//            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-//        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
-//            playController.setPlayState(PlayStateConstant.ISPAUSE);
-//            playController.pause();
-//            mIbtnPlayOrPause.setImageResource(play);
-//        }
-        playController.play();
+        playController.playOrPause();
     }
 
     private void startTimer() {

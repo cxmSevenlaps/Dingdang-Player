@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, PlayController.OnMusicStateChangedListener {
-private static final String LOG_TAG = "MainActivity";
+    private static final String LOG_TAG = "MainActivity";
     private ListView mMusicListView;
     private MusicItemAdapter mMusicItemAdapter;
     private List<MusicItem> mMusicList;
@@ -44,6 +44,10 @@ private static final String LOG_TAG = "MainActivity";
         mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
         playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
         mMusicListView.setAdapter(mMusicItemAdapter);
+
+        //加载第一首歌
+        playController.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(1).getPath());
+        playController.setIsPlayingId(1);
 
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);
         mBtnDetails.setOnClickListener(this);
@@ -73,27 +77,17 @@ private static final String LOG_TAG = "MainActivity";
     }
 
     private void performBtnPlayOrPauseClick() {
-//        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-//            playController.play();
-//            playController.setPlayState(PlayStateConstant.ISPLAYING);
-//
-//            mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-//        } else if (PlayController.getInstance().getPlayState() == PlayStateConstant.ISPLAYING) {
-//            playController.setPlayState(PlayStateConstant.ISPAUSE);
-//            playController.getInstance().pause();
-//            mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-//        }
-        playController.play();
 
+        playController.playOrPause();
     }
 
     private void performBtnJumpToDetailsClick() {
-        if (playController.getIsPlayingId()==0)//防止还没选歌曲时候就点击，然后闪退
+        if (playController.getIsPlayingId() == 0)//防止还没选歌曲时候就点击，然后闪退
         {
             return;
         }
         Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-        intent.putExtra("id", mMusicItem.getmId());
+        intent.putExtra("id", playController.getIsPlayingId());
 
         startActivity(intent);
     }
@@ -134,33 +128,39 @@ private static final String LOG_TAG = "MainActivity";
 
     }
 
+
     private void performItemClick(int position) {
-        mMusicItem = mMusicItemAdapter.getItem(position);
-        mMusicItem.setPath(mMusicItem.getPath());
-        Log.d("MainActivity", "mCurrentPlayingPath:" + mCurrentPlayingPath);
-        Log.d("MainActivity", "mMusicItem.getPath():" + mMusicItem.getPath());
+//        mMusicItem = mMusicItemAdapter.getItem(position);
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(mMusicItemAdapter.getItem(position).getmId());
+//        mMusicItem.setPath(mMusicItem.getPath());
+        Log.d(LOG_TAG, "performItemClick");
+        Log.d(LOG_TAG, "mCurrentPlayingPath:" + mCurrentPlayingPath);
+        Log.d(LOG_TAG, "mMusicItem.getPath():" + mMusicItem.getPath());
 
-        if ((mCurrentPlayingPath == null) ||
-                (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
-//            if (mCurrentPlayingPath!=null){//不是刚打开app，还未点击列表歌曲的状态
-                playController.destroy();
+        playController.play(mMusicItem);
+
+//        if ((mCurrentPlayingPath == null) ||
+//                (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
+////            if (mCurrentPlayingPath!=null){//不是刚打开app，还未点击列表歌曲的状态
+//            playController.destroy();
+////            }
+//            mCurrentPlayingPath = mMusicItem.getPath();
+//            playController.setIsPlayingId(mMusicItem.getmId());
+//            Intent intentService = new Intent(MainActivity.this, MusicService.class);
+//            intentService.putExtra("id", mMusicItem.getmId());
+//            startService(intentService);
+//            updateButtonUI(playController.getPlayState());
+//        } else {
+//            if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
+//                playController.play();
+//                playController.setPlayState(PlayStateConstant.ISPLAYING);
+//
+//                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+//            } else {
+//                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getMusicTitle() + ",于是啥也不干");
 //            }
-            mCurrentPlayingPath = mMusicItem.getPath();
-            playController.setIsPlayingId(mMusicItem.getmId());
-            Intent intentService = new Intent(MainActivity.this, MusicService.class);
-            intentService.putExtra("id", mMusicItem.getmId());
-            startService(intentService);
-            updateButtonUI(playController.getPlayState());
-        } else {
-            if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
-                playController.play();
-                playController.setPlayState(PlayStateConstant.ISPLAYING);
-
-                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-            } else {
-                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getMusicTitle() + ",于是啥也不干");
-            }
-        }
+//        }
     }
 
     @Override
@@ -185,7 +185,8 @@ private static final String LOG_TAG = "MainActivity";
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(playState);
     }
-    private void updateView(int playState){
+
+    private void updateView(int playState) {
         updateButtonUI(playState);
     }
 }
