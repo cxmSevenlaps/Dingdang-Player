@@ -190,6 +190,12 @@ public class PlayController extends MediaPlayer {
 
         notifyStateChanged(playControllerInstance.getPlayState());
     }
+    public void pause(){
+        Log.d(LOG_TAG, "pause()");
+        mediaPlayer.pause();
+        playControllerInstance.setPlayState(PlayStateConstant.ISPAUSE);
+        notifyStateChanged(playControllerInstance.getPlayState());
+    }
 
     public void destroy() {
         Log.d(LOG_TAG, "destroy()");
@@ -203,8 +209,28 @@ public class PlayController extends MediaPlayer {
     }
 
 
-    public void seekTo(int progress) {
+    /**
+     *
+     * @param progress
+     */
+    public void seekToPosition(int progress) {
         mediaPlayer.seekTo(progress);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getCurrentPositionEx(){
+        return mediaPlayer.getCurrentPosition();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getMusicDuration(){
+        return mediaPlayer.getDuration();
     }
 
     /**

@@ -3,7 +3,6 @@ package com.example.sevenlaps.dingdangplayer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +37,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private Timer mTimer = null;
     private TimerTask mTimerTask = null;
     private Handler mHandler = null;
-    private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突
+    private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突;true说明正在拖动还没放手
 
     private PlayController playController = null;
 
@@ -62,19 +61,20 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             finish();
             return;
         }
-        playController=PlayController.getInstance();
+        playController = PlayController.getInstance();
         playController.addMusicStateChangedListener(this);
 
 
 
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
-
-        updateSeekBar();
+        mSeekBar.setOnSeekBarChangeListener(this);
+        mSeekBar.setMax(playController.getMusicDuration());
+        mHandler = new Handler();
+        mHandler.post(mRunnable);
 
 
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
-//        initPlayOrPauseBtnImage();
 
         mIbtnPlayOrPause.setOnClickListener(this);
         mIbtnPlayPrevious = (ImageButton) findViewById(R.id.ibtn_details_play_previous);
@@ -85,6 +85,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext.setOnClickListener(this);
 
         updateView(playController.getPlayState());
+
     }
 
     private void updateDurationTextView() {
@@ -95,7 +96,6 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
         Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
         long duration = Long.parseLong(mMusicItem.getDuration());
-//        sdf = new SimpleDateFormat("mm:ss");
         mTextViewDuration.setText(sdf.format(duration));
     }
 
@@ -138,15 +138,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.ibtn_details_play_previous:
                 performBtnPlayPrevious();
-//                mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
                 break;
             case R.id.ibtn_details_play_next:
-                Log.d("MusicDetailsActivity", "click play next");
-//                stopTimer();
                 performBtnPlayNext();
-//                mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-
-//                updateSeekBar();
                 break;
             default:
                 break;
@@ -158,7 +152,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
      */
     private void performBtnPlayNext() {
 
-        if (playController.getIsPlayingId() == playController.getNumberOfSongs()){
+        if (playController.getIsPlayingId() == playController.getNumberOfSongs()) {
             playController.play(DatabaseModel
                     .getDatabaseModelInstance(this).getMusicItemById(1));
         } else {
@@ -188,78 +182,48 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         playController.playOrPause();
     }
 
-    private void startTimer() {
-        if (mTimer == null) {
-            mTimer = new Timer();
-        }
-
-        if (mTimerTask == null) {
-            mTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    sendMessage(UPDATE_SEEKBAR_PROGRESS);
-                }
-            };
-        }
-
-        if ((mTimerTask != null) && (mTimer != null)) {
-            mTimer.schedule(mTimerTask, 0, 1000);
-        }
-    }
-
-    private void stopTimer() {
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer = null;
-        }
-        if (mTimerTask != null) {
-            mTimerTask.cancel();
-            mTimerTask = null;
-        }
-    }
-
-    private void updateSeekBarProgress() {
-        mSeekBar.setProgress(playController.getMediaPlayer().getCurrentPosition());
-    }
-
-    public void sendMessage(int id) {
-        if (mHandler != null) {
-            Message msg = Message.obtain(mHandler, id);
-            mHandler.sendMessage(msg);
-            Log.d("MusicDetailsActivity", "send messages to handler");
-        }
-    }
-
-    private void updateSeekBar() {
-
-        startTimer();
-        mHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case UPDATE_SEEKBAR_PROGRESS:
-                        mSeekBar.setMax(playController.getMediaPlayer().getDuration());//设置进度条
-                        mSeekBar.setProgress(playController.getMediaPlayer().getCurrentPosition());
-//                        sdf = new SimpleDateFormat("mm:ss");
-                        mTextViewCurrentTime.setText(sdf.format(playController.getMediaPlayer().getCurrentPosition()));
-
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopTimer();
+        mHandler.removeCallbacks(mRunnable);
+    }
+
+    @Override
+    /**
+     * 回调,更新界面
+     */
+    public void onMusicStateChanged(int playState) {
+        Log.d(LOG_TAG, "onMusicStateChanged");
+        updateView(playState);
+    }
+
+    private void updateView(int playState) {
+        updateBtnPlayOrPauseImage(playState);
+        updateTitleTextView();
+        updateArtistTextView();
+        updateDurationTextView();
+    }
+
+
+    private void updateSeekBar() {
+        mSeekBar.setProgress(playController.getCurrentPositionEx());
+    }
+
+    private void updateBtnPlayOrPauseImage(int playState) {
+        if (playState == PlayStateConstant.ISPLAYING) {
+            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
+        } else if (playState == PlayStateConstant.ISPAUSE) {
+            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
+        }
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser) {//判断是否来自用户的拖动操作
 
+            mTextViewCurrentTime.setText(sdf.format(seekBar.getProgress()));
+//            isChanging = false;
+        }
     }
 
     @Override
@@ -269,37 +233,29 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        playController.seekTo(seekBar.getProgress());
+        playController.seekToPosition(seekBar.getProgress());
+
+        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
+            playController.play();
+        }
         isChanging = false;
     }
 
-    @Override
-    public void onMusicStateChanged(int playState) {
-        Log.d(LOG_TAG, "onMusicStateChanged");
-        updateView(playState);
-    }
-
-    private void updateView(int playState){
-        updateBtnPlayOrPauseImage(playState);
-        updateTitleTextView();
-        updateArtistTextView();
-        updateDurationTextView();
-    }
-    private void updateBtnPlayOrPauseImage(int playState){
-        if (playState==PlayStateConstant.ISPLAYING){
-            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-        }else if (playState==PlayStateConstant.ISPAUSE){
-            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isChanging == false) {
+                mSeekBar.setProgress(playController.getCurrentPositionEx());
+                mTextViewCurrentTime.setText(sdf.format(playController.getCurrentPositionEx()));
+            }
+            mHandler.postDelayed(mRunnable, 1000);
         }
-    }
+    };
 
-    //    public static Handler handler = new Handler(){
-//        public void handleMessage(android.os.Message msg){
-//            Bundle bundle = msg.getData();
-//            int duration = bundle.getInt("duration");
-//            int currentDuration = bundle.getInt("currentPosition");
-//            mSeekBar.setMax(duration);
-//            mSeekBar.setProgress(currentDuration);
-//        }
-//    };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mHandler.removeCallbacks(mRunnable);
+    }
 }
