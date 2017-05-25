@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        AdapterView.OnItemClickListener, PlayController.OnMusicStateChangedListener {
+        AdapterView.OnItemClickListener, MusicService.OnMusicStateChangedListener {
     private static final String LOG_TAG = "MainActivity";
     private ListView mMusicListView;
     private MusicItemAdapter mMusicItemAdapter;
@@ -31,29 +31,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MusicItem mMusicItem;
     private PlayController playController = PlayController.getInstance();
     private String mCurrentPlayingPath = null;
+    private int playState=PlayStateConstant.IS_STOP;
 
     private MusicService mBoundService;
-    private boolean mIsBound = false;
+    private MusicService.MusicBinder mMusicBinder;
+    private boolean mIsBound = false;    //是否绑定服务
     private Intent mServiceIntent;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mBoundService = ((MusicService.MusicBinder) service).getService();
+            Log.d(LOG_TAG, "onServiceConnected");
+            mMusicBinder = (MusicService.MusicBinder) service;
+            mBoundService = (mMusicBinder).getService();
+            mBoundService.addMusicStateChangedListener(MainActivity.this);
 
+            //打开app,默认加载第一首歌
+            /*modify begin 使用服务替代controller*/
+            mBoundService.setPath(DatabaseModel.getDatabaseModelInstance(MainActivity.this)
+                    .getMusicItemById(1).getPath());
+            mBoundService.setPlayingId(1);
+            /*modify end 使用服务替代controller*/
+
+
+            /*modify begin 使用服务替代controller*/
+//            playState=mBoundService.getPlayState();
+            updateView(mBoundService.getPlayState());
+            /*modify end 使用服务替代controller*/
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+
+            Log.d(LOG_TAG, "onServiceDisconnected");
             mBoundService = null;
         }
     };
 
-    private void doBindService() {
-        bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE);
-        mIsBound = false;
+    void doBindService() {
+        Log.d(LOG_TAG, "doBindService()");
+        boolean rst = bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE);
+        mIsBound = true;
     }
-    private void doUnbindService(){
-        if (mIsBound==true){
+
+    void doUnbindService() {
+        if (mIsBound == true) {
             unbindService(mConnection);
             mIsBound = false;
         }
@@ -64,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        playController.addMusicStateChangedListener(this);
+//        playController.addMusicStateChangedListener(this);
 
         mMusicListView = (ListView) findViewById(R.id.listview_music_list);
         mMusicList = new ArrayList<MusicItem>();
@@ -75,9 +96,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
         mMusicListView.setAdapter(mMusicItemAdapter);
 
-        //加载第一首歌
-        playController.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(1).getPath());
-        playController.setIsPlayingId(1);
+        mServiceIntent = new Intent(MainActivity.this, MusicService.class);
+        doBindService();
+
+        //刚打开app,默认加载第一首歌
+        /*modify begin 使用服务替代controller*/
+//        playController.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(1).getPath());
+//        playController.setIsPlayingId(1);
+        /*modify end 使用服务替代controller*/
 
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);
         mBtnDetails.setOnClickListener(this);
@@ -89,9 +115,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /*跳转到MusicDetailsActivity*/
         mMusicListView.setOnItemClickListener(this);
 
+        /*modify begin 使用服务替代controller*/
+//        updateView(playController.getPlayState());
+//        updateView(mBoundService.getPlayState());
+        /*modify end 使用服务替代controller*/
 
-
-        updateView(playController.getPlayState());
     }
 
     @Override
@@ -109,21 +137,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void performBtnPlayOrPauseClick() {
-
-        playController.playOrPause();
-
+        /*modify begin 使用服务替代controller*/
+//        playController.playOrPause();
+        mBoundService.playOrPause();
+        /*modify end 使用服务替代controller*/
 
     }
 
     private void performBtnJumpToDetailsClick() {
-        if (playController.getIsPlayingId() == 0)//防止还没选歌曲时候就点击，然后闪退
-        {
-            return;
-        }
+        /*modify begin 使用服务替代controller*/
+//        if (playController.getIsPlayingId() == 0)//防止还没选歌曲时候就点击，然后闪退
+//        {
+//            return;
+//        }
+//        Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
+//        intent.putExtra("id", playController.getIsPlayingId());
+        Log.d(LOG_TAG, "performBtnJumpToDetailsClick");
         Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-        intent.putExtra("id", playController.getIsPlayingId());
+        intent.putExtra("id", mBoundService.getPlayingId());
+        /*modify end 使用服务替代controller*/
 
         startActivity(intent);
+
     }
 
     /**
@@ -131,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void updateButtonUI(int playState) {
         MusicItem item;
-        item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId());
         if (item.getMusicTitle() == null) {
             mBtnDetails.setText("歌曲名无法显示");
         } else {
@@ -166,47 +201,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void performItemClick(int position) {
 
+        Log.d(LOG_TAG, "performItemClick");
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
                 .getMusicItemById(mMusicItemAdapter.getItem(position).getmId());
-        Log.d(LOG_TAG, "performItemClick");
-        Log.d(LOG_TAG, "mCurrentPlayingPath:" + mCurrentPlayingPath);
-        Log.d(LOG_TAG, "mMusicItem.getPath():" + mMusicItem.getPath());
+        /*modify begin 使用服务替代controller*/
+//        playController.play(mMusicItem);
+        mBoundService.playMusic(mMusicItem);
+        /*modify end 使用服务替代controller*/
 
-        playController.play(mMusicItem);
-
-//        if ((mCurrentPlayingPath == null) ||
-//                (mMusicItem.getPath().compareTo(mCurrentPlayingPath) != 0)) {//第一次打开app播放||选择非"正在播放"的歌曲
-////            if (mCurrentPlayingPath!=null){//不是刚打开app，还未点击列表歌曲的状态
-//            playController.destroy();
-////            }
-//            mCurrentPlayingPath = mMusicItem.getPath();
-//            playController.setIsPlayingId(mMusicItem.getmId());
-//            Intent intentService = new Intent(MainActivity.this, MusicService.class);
-//            intentService.putExtra("id", mMusicItem.getmId());
-//            startService(intentService);
-//            updateButtonUI(playController.getPlayState());
-//        } else {
-//            if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {//如果是处于暂停状态,那么点击歌曲列表同一首歌,则继续播放
-//                playController.play();
-//                playController.setPlayState(PlayStateConstant.ISPLAYING);
 //
-//                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-//            } else {
-//                Log.d("MainActivity", "点击同一首歌:" + mMusicItem.getMusicTitle() + ",于是啥也不干");
-//            }
-//        }
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
-        playController.destroy();
+        /*modify begin 使用服务替代controller*/
+//        playController.destroy();
+        mBoundService.stopMusic();
         doUnbindService();
-
+        /*modify end 使用服务替代controller*/
     }
 
     @Override
     protected void onResume() {
+
+        Log.d(LOG_TAG, "onResume");
         super.onResume();
     }
 
@@ -219,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
-        updateView(playState);
+        updateView(mBoundService.getPlayState());
     }
 
     private void updateView(int playState) {
