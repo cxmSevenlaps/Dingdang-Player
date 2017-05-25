@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MusicService mBoundService;
     private boolean mIsBound = false;
+    private Intent mServiceIntent;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -48,10 +49,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void doBindService() {
-        bindService(new Intent(MainActivity.this, MusicService.class), mConnection, BIND_AUTO_CREATE);
+        bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE);
         mIsBound = false;
     }
-    private void duUnbindService(){
+    private void doUnbindService(){
         if (mIsBound==true){
             unbindService(mConnection);
             mIsBound = false;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /*跳转到MusicDetailsActivity*/
         mMusicListView.setOnItemClickListener(this);
 
-        doBindService();
+
 
         updateView(playController.getPlayState());
     }
@@ -110,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void performBtnPlayOrPauseClick() {
 
         playController.playOrPause();
+
+
     }
 
     private void performBtnJumpToDetailsClick() {
@@ -155,12 +158,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d("MainActivity", "listview click");
+
         performItemClick(position);
 
     }
 
 
     private void performItemClick(int position) {
+
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
                 .getMusicItemById(mMusicItemAdapter.getItem(position).getmId());
         Log.d(LOG_TAG, "performItemClick");
@@ -196,6 +201,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         playController.destroy();
+        doUnbindService();
+
     }
 
     @Override
