@@ -1,8 +1,11 @@
 package com.example.sevenlaps.dingdangplayer;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener,
-        SeekBar.OnSeekBarChangeListener, PlayController.OnMusicStateChangedListener {
+        SeekBar.OnSeekBarChangeListener, MusicService.OnMusicStateChangedListener {
     private static final String LOG_TAG = "MusicDetailsActivity";
     private static final int UPDATE_SEEKBAR_PROGRESS = 0;
     private TextView mTextViewArtist;
@@ -42,6 +45,47 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     private PlayController playController = null;
 
+    private MusicService.MusicBinder mMusicBinder;
+    private MusicService mBoundService;
+    private boolean mIsBound = false;
+    private Intent mServiceIntent ;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(LOG_TAG, "onServiceConnected(ComponentName name, IBinder service) ");
+            mMusicBinder = (MusicService.MusicBinder) service;
+            mBoundService = mMusicBinder.getService();
+            mBoundService.addMusicStateChangedListener(MusicDetailsActivity.this);
+
+            mHandler = new Handler();
+            mHandler.post(mRunnable);
+
+            updateView(mBoundService.getPlayState());
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(LOG_TAG, "onServiceDisconnected(ComponentName name)");
+            mBoundService = null;
+        }
+    };
+
+    void doBindService() {
+        Log.d(LOG_TAG, "doBindService()");
+        if (bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE)) {
+            mIsBound = true;
+        }
+
+    }
+
+    void doUnBindService() {
+        Log.d(LOG_TAG, "doUnBindService()");
+        if (mIsBound == true) {
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +106,21 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             finish();
             return;
         }
-        playController = PlayController.getInstance();
-        playController.addMusicStateChangedListener(this);
 
+        /*modify begin 使用服务替代controller*/
+//        playController = PlayController.getInstance();
+//        playController.addMusicStateChangedListener(this);
+        /*modify end 使用服务替代controller*/
 
 
         /*seekbar*/
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
         mSeekBar.setOnSeekBarChangeListener(this);
-        mSeekBar.setMax(playController.getMusicDuration());
-        mHandler = new Handler();
-        mHandler.post(mRunnable);
+        /*modify begin 使用服务替代controller*/
+//        mSeekBar.setMax(playController.getMusicDuration());
+
+        /*modify end 使用服务替代controller*/
+
 
 
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
@@ -85,28 +133,40 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
         mIbtnPlayNext.setOnClickListener(this);
 
-        updateView(playController.getPlayState());
+        /*modify begin 使用服务替代controller*/
+//        updateView(playController.getPlayState());
+        mServiceIntent = new Intent(this, MusicService.class);
+        doBindService();
+        /*modify end 使用服务替代controller*/
 
     }
 
     private void updateDurationTextView() {
-        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        Log.d(LOG_TAG, "updateDurationTextView");
+        /*modify begin 使用服务替代controller*/
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(mBoundService.getPlayingId());
+         /*modify end 使用服务替代controller*/
         if (null == mMusicItem) {
-            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            Log.d(LOG_TAG, "mMusicItem is null");
             return;
         }
-        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+        Log.d(LOG_TAG, mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
         long duration = Long.parseLong(mMusicItem.getDuration());
         mTextViewDuration.setText(sdf.format(duration));
     }
 
     private void updateTitleTextView() {
-        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        Log.d(LOG_TAG, "updateTitleTextView()");
+        /*modify begin 使用服务替代controller*/
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(mBoundService.getPlayingId());
+         /*modify end 使用服务替代controller*/
         if (null == mMusicItem) {
-            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            Log.d(LOG_TAG, "mMusicItem is null");
             return;
         }
-        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+        Log.d(LOG_TAG, mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
 
         if (mMusicItem.getMusicTitle() == null) {
             mTextViewTitle.setText("--未知歌曲--");
@@ -116,12 +176,16 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateArtistTextView() {
-        mMusicItem = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId());
+        Log.d(LOG_TAG, "updateArtistTextView()");
+        /*modify begin 使用服务替代controller*/
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(mBoundService.getPlayingId());
+         /*modify end 使用服务替代controller*/
         if (null == mMusicItem) {
-            Log.d("MusicDetailsActivity", "mMusicItem is null");
+            Log.d(LOG_TAG, "mMusicItem is null");
             return;
         }
-        Log.d("MusicDetailsActivity", mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
+        Log.d(LOG_TAG, mMusicItem.getmArtist() + "--" + mMusicItem.getMusicTitle());
 
         if (mMusicItem.getmArtist() == null) {
             mTextViewArtist.setText("--未知艺术家--");
@@ -152,35 +216,42 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
      * 点击播放下一曲
      */
     private void performBtnPlayNext() {
+        /*modify begin 使用服务替代controller*/
+        mBoundService.playNext();
 
-        if (playController.getIsPlayingId() == playController.getNumberOfSongs()) {
-            playController.play(DatabaseModel
-                    .getDatabaseModelInstance(this).getMusicItemById(1));
-        } else {
+//        if (playController.getIsPlayingId() == playController.getNumberOfSongs()) {
+//            playController.play(DatabaseModel
+//                    .getDatabaseModelInstance(this).getMusicItemById(1));
+//        } else {
+//
+//            playController.play(DatabaseModel
+//                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() + 1));
+//        }
 
-            playController.play(DatabaseModel
-                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() + 1));
-        }
-
-
+        /*modify end 使用服务替代controller*/
     }
 
     /**
      * 点击播放上一曲
      */
     private void performBtnPlayPrevious() {
-
-        if (playController.getIsPlayingId() == 1) {//第一首歌ID是1，1是起始值
-            playController.play(DatabaseModel
-                    .getDatabaseModelInstance(this).getMusicItemById(playController.getNumberOfSongs()));
-        } else {
-            playController.play(DatabaseModel
-                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() - 1));
-        }
+        /*modify begin 使用服务替代controller*/
+        mBoundService.playPrevious();
+//        if (playController.getIsPlayingId() == 1) {//第一首歌ID是1，1是起始值
+//            playController.play(DatabaseModel
+//                    .getDatabaseModelInstance(this).getMusicItemById(playController.getNumberOfSongs()));
+//        } else {
+//            playController.play(DatabaseModel
+//                    .getDatabaseModelInstance(this).getMusicItemById(playController.getIsPlayingId() - 1));
+//        }
+        /*modify begin 使用服务替代controller*/
     }
 
     private void performBtnPlayOrPauseClick() {
-        playController.playOrPause();
+        /*modify begin 使用服务替代controller*/
+        mBoundService.playOrPause();
+//        playController.playOrPause();
+        /*modify begin 使用服务替代controller*/
     }
 
     @Override
@@ -199,6 +270,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updateView(int playState) {
+        mSeekBar.setMax(mBoundService.getmMediaPlayer().getDuration());
         updateBtnPlayOrPauseImage(playState);
         updateTitleTextView();
         updateArtistTextView();
@@ -218,6 +290,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {//判断是否来自用户的拖动操作
@@ -234,20 +307,28 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        playController.seekToPosition(seekBar.getProgress());
+        /*modify begin 使用服务替代controller*/
+//        playController.seekToPosition(seekBar.getProgress());
+        mBoundService.getmMediaPlayer().seekTo(seekBar.getProgress());
+        mBoundService.playMusic();
+        isChanging=false;
 
-        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
-            playController.play();
-        }
-        isChanging = false;
+//        if (playController.getPlayState() == PlayStateConstant.ISPAUSE) {
+//            playController.play();
+//        }
     }
+    /*modify end 使用服务替代controller*/
 
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
-            if (isChanging == false) {
-                mSeekBar.setProgress(playController.getCurrentPositionEx());
-                mTextViewCurrentTime.setText(sdf.format(playController.getCurrentPositionEx()));
+            if (isChanging == false) {//用户在拖动进度条的时候,音乐继续播放,进度条不自动更新
+                /*modify begin 使用服务替代controller*/
+//                mSeekBar.setProgress(playController.getCurrentPositionEx());
+//                mTextViewCurrentTime.setText(sdf.format(playController.getCurrentPositionEx()));
+                mSeekBar.setProgress(mBoundService.getmMediaPlayer().getCurrentPosition());
+                mTextViewCurrentTime.setText(sdf.format(mBoundService.getmMediaPlayer().getCurrentPosition()));
+                /*modify end 使用服务替代controller*/
             }
             mHandler.postDelayed(mRunnable, 1000);
         }
@@ -256,7 +337,10 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onBackPressed() {
+        Log.d(LOG_TAG, "onBackPressed()");
         super.onBackPressed();
+        doUnBindService();
         mHandler.removeCallbacks(mRunnable);
+
     }
 }

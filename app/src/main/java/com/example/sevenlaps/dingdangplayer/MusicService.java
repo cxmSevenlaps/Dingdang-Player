@@ -24,6 +24,7 @@ public class MusicService extends Service {
     private int playState = PlayStateConstant.IS_STOP;//播放状态
     private int playingId = 1;//正在播放的歌曲id,默认第一首
     private String path;
+    private int mNumberOfSongs = 0;
 
     private static final String LOG_TAG = "MusicService";
     private final IBinder musicBinder = new MusicBinder();
@@ -46,6 +47,14 @@ public class MusicService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return musicBinder;
+    }
+
+    public MediaPlayer getmMediaPlayer() {
+        return mMediaPlayer;
+    }
+
+    public void setmMediaPlayer(MediaPlayer mMediaPlayer) {
+        this.mMediaPlayer = mMediaPlayer;
     }
 
     public int getPlayState() {
@@ -72,6 +81,18 @@ public class MusicService extends Service {
         this.path = path;
     }
 
+    public int getmNumberOfSongs() {
+        return mNumberOfSongs;
+    }
+
+    public void setmNumberOfSongs(int mNumberOfSongs) {
+        this.mNumberOfSongs = mNumberOfSongs;
+    }
+
+    /**
+     * 用于列表选取歌曲播放
+     * @param item
+     */
     public void playMusic(MusicItem item) {
 
 //        if (!mMediaPlayer.isPlaying()){
@@ -170,6 +191,33 @@ public class MusicService extends Service {
     public void resetMusic() {
         mMediaPlayer.reset();
         initMediaPlayerFile();
+    }
+
+    public void playNext(){
+        Log.d(LOG_TAG, "playNext()");
+        if (playingId==mNumberOfSongs){
+            playingId=1;//如果是最后一首了,下一曲设置为第一首
+
+        } else {
+            playingId++;
+        }
+        initMediaPlayerFile();
+        playMusic();
+        setPlayState(PlayStateConstant.ISPLAYING);
+        notifyStateChanged(playState);
+    }
+
+    public void playPrevious(){
+        Log.d(LOG_TAG, "playPrevious()");
+        if (playingId==1){
+            playingId = mNumberOfSongs;//如果是第一首,上一曲设置为列表最后一首
+        }else {
+            playingId--;
+        }
+        initMediaPlayerFile();
+        playMusic();
+        setPlayState(PlayStateConstant.ISPLAYING);
+        notifyStateChanged(playState);
     }
 
     public void stopMusic() {

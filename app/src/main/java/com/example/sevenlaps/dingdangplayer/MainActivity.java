@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBoundService.setPath(DatabaseModel.getDatabaseModelInstance(MainActivity.this)
                     .getMusicItemById(1).getPath());
             mBoundService.setPlayingId(1);
+            mBoundService.setmNumberOfSongs(mMusicItemAdapter.getCount());
             /*modify end 使用服务替代controller*/
 
 
@@ -93,7 +94,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        initList(mMusicList);//测试Listview显示使用
         mMusicList = DatabaseModel.getDatabaseModelInstance(this).loadMusic(this);
         mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
-        playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
+        /*modify begin 使用服务替代controller*/
+//        playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
+
+        /*modify end 使用服务替代controller*/
         mMusicListView.setAdapter(mMusicItemAdapter);
 
         mServiceIntent = new Intent(MainActivity.this, MusicService.class);
