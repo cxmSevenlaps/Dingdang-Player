@@ -2,6 +2,7 @@ package com.example.sevenlaps.orm;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import com.example.sevenlaps.dingdangplayer.MusicItem;
 import com.example.sevenlaps.loader.MusicLoader;
@@ -14,6 +15,7 @@ import java.util.List;
  */
 
 public class DatabaseModel {
+    private static final String LOG_TAG = "DatabaseModel";
     private static final String MUSIC_DIR= Environment.getExternalStorageDirectory().getAbsolutePath()+"/qqmusic/song";
     private MusicDao mMusicDao;
     private static DatabaseModel databaseModelInstance;
@@ -35,6 +37,7 @@ public class DatabaseModel {
      * @return
      */
     public List<MusicItem> loadMusic(Context context){
+        Log.d(LOG_TAG, "loadMusic(Context context)");
         List<MusicItem> items = null;
         //如果数据库里面有,就load数据库里的
         items = loadMusicDataFromDatabase();

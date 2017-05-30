@@ -11,6 +11,7 @@ public class MusicItem {
     private String mArtist;
     private String path;
     private String duration;
+    private byte[] mArtWork;//专辑图片
 
     public MusicItem(){}
 
@@ -23,6 +24,14 @@ public class MusicItem {
 //        this.mArtist = mArtist;
 //    }
 
+
+    public byte[] getmArtWork() {
+        return mArtWork;
+    }
+
+    public void setmArtWork(byte[] mArtWork) {
+        this.mArtWork = mArtWork;
+    }
 
     public String getDuration() {
         return duration;

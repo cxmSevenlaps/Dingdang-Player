@@ -15,7 +15,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             +"title text, "
             +"artist text, "
             +"duration text,"
-            + "path text)";
+            + "path text,"
+            + "artwork BLOB)";
     private Context mContext;
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {

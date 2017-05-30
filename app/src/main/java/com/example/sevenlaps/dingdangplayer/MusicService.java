@@ -1,13 +1,17 @@
 package com.example.sevenlaps.dingdangplayer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.example.sevenlaps.controller.PlayController;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
@@ -20,17 +24,19 @@ public class MusicService extends Service {
         public void onMusicStateChanged(int playState);
     }
 
+    private final int NOTIFICATION_DINGDANG_MUSIC = R.string.dingdang_music_service_started;
     private List<OnMusicStateChangedListener> musicStateChangedListeners;
     private int playState = PlayStateConstant.IS_STOP;//播放状态
     private int playingId = 1;//正在播放的歌曲id,默认第一首
     private String path;
     private int mNumberOfSongs = 0;
+    private int mFrontActivityId = 0;//标识那个Activity在最前面, 0是MainActivity, 1是DetailsActivity
 
     private static final String LOG_TAG = "MusicService";
     private final IBinder musicBinder = new MusicBinder();
     private MediaPlayer mMediaPlayer = new MediaPlayer();
-    private PlayController mPlayController = PlayController.getInstance();
 
+    private NotificationManager notificationManager;
 
     public MusicService() {
 
@@ -47,6 +53,16 @@ public class MusicService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return musicBinder;
+    }
+
+    public int getmFrontActivityId() {
+        Log.d(LOG_TAG, " getmFrontActivityId() ,mFrontActivityId= "+mFrontActivityId);
+        return mFrontActivityId;
+    }
+
+    public void setmFrontActivityId(int mFrontActivityId) {
+        Log.d(LOG_TAG, " setmFrontActivityId() ,mFrontActivityId= "+mFrontActivityId);
+        this.mFrontActivityId = mFrontActivityId;
     }
 
     public MediaPlayer getmMediaPlayer() {
@@ -91,60 +107,47 @@ public class MusicService extends Service {
 
     /**
      * 用于列表选取歌曲播放
-     * @param item
+     *
+     * @param id 从列表中选中的歌曲的ID
      */
-    public void playMusic(MusicItem item) {
+//    public void playMusic(MusicItem item) {
+    public void listClickMusicPlay(int id) {
 
-//        if (!mMediaPlayer.isPlaying()){
-//            mMediaPlayer.start();
-//        }
-
-        Log.d(LOG_TAG, "playMusic(MusicItem item)");
+        Log.d(LOG_TAG, "playMusic(int id)");
         switch (getPlayState()) {
             case PlayStateConstant.ISPLAYING:
             case PlayStateConstant.ISPAUSE:
-                if (item.getmId() != playingId) {
-                    mMediaPlayer.reset();
+                if (id != playingId) {
+                    playingId = id;
                     Log.d(LOG_TAG, "mediaplayer reset:换歌");
-                    try {
-                        mMediaPlayer.setDataSource(item.getPath());
-                        mMediaPlayer.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    mMediaPlayer.start();
+                    initMediaPlayerFile();
+                    playMusic();
 
                 } else {   //在列表中点击同一首歌
                     if (playState == PlayStateConstant.ISPLAYING) {
-                        Log.d(LOG_TAG, "已经在播放: " + item.getMusicTitle() + ",因此啥也不用做");
+                        Log.d(LOG_TAG, "已经在播放: " + DatabaseModel.getDatabaseModelInstance(this)
+                                .getMusicItemById(playingId).getMusicTitle() + ",因此啥也不用做");
                     } else if (playState == PlayStateConstant.ISPAUSE) {//如果是暂停状态,点击后继续播放
-                        Log.d(LOG_TAG, "继续播放: " + item.getMusicTitle());
-                        mMediaPlayer.start();
+                        Log.d(LOG_TAG, "继续播放: " + DatabaseModel.getDatabaseModelInstance(this)
+                                .getMusicItemById(playingId).getMusicTitle());
+                        playMusic();
                     }
                 }
                 break;
             case PlayStateConstant.IS_STOP://首次打开app
-                mMediaPlayer = new MediaPlayer();
-                try {
-                    mMediaPlayer.setDataSource(item.getPath());
-                    mMediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                mMediaPlayer.start();
-
+                playingId = id;
+                initMediaPlayerFile();
+                playMusic();
                 break;
-            default:break;
+            default:
+                break;
         }
 
-//        mPlayController.setPlayState(PlayStateConstant.ISPLAYING);
-//        mPlayController.setIsPlayingId(item.getmId());
-//        notifyStateChanged(mPlayController.getPlayState());
-        playState=PlayStateConstant.ISPLAYING;
-        playingId=item.getmId();
+        playState = PlayStateConstant.ISPLAYING;
         notifyStateChanged(playState);
 
     }
+
     public void playOrPause() {
         Log.d(LOG_TAG, " playOrPause()");
         switch (playState) {
@@ -153,20 +156,12 @@ public class MusicService extends Service {
                 setPlayState(PlayStateConstant.ISPAUSE);
                 break;
             case PlayStateConstant.ISPAUSE:
-                mMediaPlayer.start();
-                setPlayState(PlayStateConstant.ISPLAYING);
+                playMusic();
                 break;
             case PlayStateConstant.IS_STOP://首次打开app,点击播放
-
-                try {
-                    mMediaPlayer = new MediaPlayer();
-                    mMediaPlayer.setDataSource(path);
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                    setPlayState(PlayStateConstant.ISPLAYING);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                initMediaPlayerFile();
+                playMusic();
+                setPlayState(PlayStateConstant.ISPLAYING);
                 break;
             default:
                 break;
@@ -180,8 +175,10 @@ public class MusicService extends Service {
         if (!mMediaPlayer.isPlaying()) {
             //如果还没开始播放，就开始
             mMediaPlayer.start();
+            setPlayState(PlayStateConstant.ISPLAYING);
         }
     }
+
     public void pauseMusic() {
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
@@ -193,10 +190,10 @@ public class MusicService extends Service {
         initMediaPlayerFile();
     }
 
-    public void playNext(){
+    public void playNext() {
         Log.d(LOG_TAG, "playNext()");
-        if (playingId==mNumberOfSongs){
-            playingId=1;//如果是最后一首了,下一曲设置为第一首
+        if (playingId == mNumberOfSongs) {
+            playingId = 1;//如果是最后一首了,下一曲设置为第一首
 
         } else {
             playingId++;
@@ -207,11 +204,11 @@ public class MusicService extends Service {
         notifyStateChanged(playState);
     }
 
-    public void playPrevious(){
+    public void playPrevious() {
         Log.d(LOG_TAG, "playPrevious()");
-        if (playingId==1){
+        if (playingId == 1) {
             playingId = mNumberOfSongs;//如果是第一首,上一曲设置为列表最后一首
-        }else {
+        } else {
             playingId--;
         }
         initMediaPlayerFile();
@@ -234,6 +231,8 @@ public class MusicService extends Service {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate()");
         musicStateChangedListeners = new ArrayList<OnMusicStateChangedListener>();//初始化监听列表
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        showNotification();
     }
 
     @Override
@@ -242,7 +241,12 @@ public class MusicService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-
+    @Override
+    public void onDestroy() {
+        Log.d(LOG_TAG, "onDestroy()");
+        super.onDestroy();
+        notificationManager.cancel(NOTIFICATION_DINGDANG_MUSIC);
+    }
 
     private void initMediaPlayerFile() {
         try {
@@ -271,5 +275,47 @@ public class MusicService extends Service {
         }
     }
 
+    private void showNotification() {
+        Log.d(LOG_TAG, "showNotification");
+        Intent intent=new Intent(this, MainActivity.class);
 
+//        intent.putExtra("message", mFrontActivityId);
+//        intent.putExtra("message", 1);
+//        switch (mFrontActivityId) {
+//            case 0:
+//                intent = new Intent(this, MainActivity.class);
+//                break;
+//            case 1:
+//                intent = new Intent(this, MusicDetailsActivity.class);
+//                break;
+//            default:
+//                break;
+//        }
+
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, intent, 0);
+//        PendingIntent pendingIntent = PendingIntent
+//                .getActivities(this, 0, makeIntentStack(this), 0);
+        MusicItem item = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(playingId);
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setTicker(item.getMusicTitle())
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle(item.getMusicTitle())
+                .setContentText(item.getmArtist())
+                .setContentIntent(pendingIntent)
+                .build();
+
+        notificationManager.notify(NOTIFICATION_DINGDANG_MUSIC, notification);
+    }
+
+    private Intent[] makeIntentStack(Context context){
+        Log.d(LOG_TAG, "makeIntentStack(Context context)");
+        Intent[] intents = new Intent[2];
+        intents[0] = Intent.makeRestartActivityTask(new ComponentName(context, MainActivity.class));
+        intents[1] = new Intent(context, MusicDetailsActivity.class);
+
+        return intents;
+    }
 }

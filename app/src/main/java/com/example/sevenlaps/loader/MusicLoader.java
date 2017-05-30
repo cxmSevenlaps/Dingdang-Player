@@ -19,6 +19,7 @@ import java.util.List;
  */
 
 public class MusicLoader {
+    private static final String LOG_TAG = "MusicLoader";
     private static final String FLAC = "flac";
     private MediaMetadataRetriever mMediaMetadataRetriever;
 
@@ -32,6 +33,7 @@ public class MusicLoader {
      * @return
      */
     public List<MusicItem> loadMusicListFromSDCard(final String parentDir) {
+        Log.d(LOG_TAG, "loadMusicListFromSDCard(final String parentDir)");
         List<MusicItem> musicItemList = new ArrayList<>();
         List<File> fileList = FileUtils.getFilesByPathAndSuffix(parentDir, FLAC);
         for (File file : fileList) {
@@ -42,16 +44,33 @@ public class MusicLoader {
     }
 
     private MusicItem loadMusicItemFromMusicFile(File musicFile) {
+        Log.d(LOG_TAG, "loadMusicItemFromMusicFile(File musicFile) ");
         mMediaMetadataRetriever.setDataSource(musicFile.getAbsolutePath());
         MusicItem item = new MusicItem();
         item.setmArtist(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
         item.setMusicTitle(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
         item.setDuration(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         item.setPath(musicFile.getAbsolutePath());
+        item.setmArtWork(mMediaMetadataRetriever.getEmbeddedPicture());
+
         Log.d("MusicLoader", "" + item.getmArtist() + "  " + item.getMusicTitle() + "path:" + item.getPath()
-                + "  "+ "duration:" + item.getDuration());
+                + "  " + "duration:" + item.getDuration());
         return item;
     }
+
+//    public Bitmap setArtWork(File musicFile) {
+//        Log.d(LOG_TAG, "setArtWork(File musicFile)");
+//        mMediaMetadataRetriever.setDataSource(musicFile.getAbsolutePath());
+//        byte[] artWork;
+//
+//        artWork = mMediaMetadataRetriever.getEmbeddedPicture();
+//        if (artWork != null) {
+//            Bitmap bitmap = BitmapFactory.decodeByteArray(artWork, 0, artWork.length);
+//            return bitmap;
+//        } else {
+//            return null;
+//        }
+//    }
 
 
     /**

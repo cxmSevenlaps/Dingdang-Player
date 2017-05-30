@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.example.sevenlaps.controller.PlayController;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
@@ -29,9 +28,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mBtnDetails;
     private ImageButton mIBtnPlayOrPause;
     private MusicItem mMusicItem;
-    private PlayController playController = PlayController.getInstance();
-    private String mCurrentPlayingPath = null;
-    private int playState=PlayStateConstant.IS_STOP;
 
     private MusicService mBoundService;
     private MusicService.MusicBinder mMusicBinder;
@@ -44,25 +40,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mMusicBinder = (MusicService.MusicBinder) service;
             mBoundService = (mMusicBinder).getService();
             mBoundService.addMusicStateChangedListener(MainActivity.this);
+            mBoundService.setmNumberOfSongs(mMusicItemAdapter.getCount());
+            mBoundService.setmFrontActivityId(0);
 
-            //打开app,默认加载第一首歌
-            /*modify begin 使用服务替代controller*/
+            /*第一次打开app,默认加载列表第一首歌*/
             mBoundService.setPath(DatabaseModel.getDatabaseModelInstance(MainActivity.this)
                     .getMusicItemById(1).getPath());
             mBoundService.setPlayingId(1);
-            mBoundService.setmNumberOfSongs(mMusicItemAdapter.getCount());
-            /*modify end 使用服务替代controller*/
 
-
-            /*modify begin 使用服务替代controller*/
-//            playState=mBoundService.getPlayState();
             updateView(mBoundService.getPlayState());
-            /*modify end 使用服务替代controller*/
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
             Log.d(LOG_TAG, "onServiceDisconnected");
             mBoundService = null;
         }
@@ -70,11 +60,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     void doBindService() {
         Log.d(LOG_TAG, "doBindService()");
-        boolean rst = bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE);
-        mIsBound = true;
+        if (bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE)) {
+            mIsBound = true;
+        }
     }
 
     void doUnbindService() {
+        Log.d(LOG_TAG, "doUnbindService()");
         if (mIsBound == true) {
             unbindService(mConnection);
             mIsBound = false;
@@ -86,44 +78,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        playController.addMusicStateChangedListener(this);
-
-        mMusicListView = (ListView) findViewById(R.id.listview_music_list);
-        mMusicList = new ArrayList<MusicItem>();
-
-//        initList(mMusicList);//测试Listview显示使用
-        mMusicList = DatabaseModel.getDatabaseModelInstance(this).loadMusic(this);
-        mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
-        /*modify begin 使用服务替代controller*/
-//        playController.setNumberOfSongs(mMusicItemAdapter.getCount());//设置歌曲数量给控制器，方便“上一曲”等按钮控制
-
-        /*modify end 使用服务替代controller*/
-        mMusicListView.setAdapter(mMusicItemAdapter);
+        initView();
 
         mServiceIntent = new Intent(MainActivity.this, MusicService.class);
         doBindService();
+    }
 
-        //刚打开app,默认加载第一首歌
-        /*modify begin 使用服务替代controller*/
-//        playController.setPath(DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(1).getPath());
-//        playController.setIsPlayingId(1);
-        /*modify end 使用服务替代controller*/
+    private void initView() {
 
+        mMusicListView = (ListView) findViewById(R.id.listview_music_list);
         mBtnDetails = (Button) findViewById(R.id.btn_activity_jump_to_details);
-        mBtnDetails.setOnClickListener(this);
-
         mIBtnPlayOrPause = (ImageButton) findViewById(R.id.btn_play_or_pause);
-        mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+        mBtnDetails.setOnClickListener(this);
         mIBtnPlayOrPause.setOnClickListener(this);
-
-        /*跳转到MusicDetailsActivity*/
         mMusicListView.setOnItemClickListener(this);
+        mIBtnPlayOrPause.setImageResource(R.mipmap.play);
 
-        /*modify begin 使用服务替代controller*/
-//        updateView(playController.getPlayState());
-//        updateView(mBoundService.getPlayState());
-        /*modify end 使用服务替代controller*/
-
+        mMusicList = new ArrayList<MusicItem>();
+        mMusicList = DatabaseModel.getDatabaseModelInstance(this).loadMusic(this);
+        mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
+        mMusicListView.setAdapter(mMusicItemAdapter);
     }
 
     @Override
@@ -141,25 +115,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void performBtnPlayOrPauseClick() {
-        /*modify begin 使用服务替代controller*/
-//        playController.playOrPause();
         mBoundService.playOrPause();
-        /*modify end 使用服务替代controller*/
-
     }
 
     private void performBtnJumpToDetailsClick() {
-        /*modify begin 使用服务替代controller*/
-//        if (playController.getIsPlayingId() == 0)//防止还没选歌曲时候就点击，然后闪退
-//        {
-//            return;
-//        }
-//        Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
-//        intent.putExtra("id", playController.getIsPlayingId());
         Log.d(LOG_TAG, "performBtnJumpToDetailsClick");
+        mBoundService.setmFrontActivityId(1);//点击通知,跳转到details页面
         Intent intent = new Intent(MainActivity.this, MusicDetailsActivity.class);
         intent.putExtra("id", mBoundService.getPlayingId());
-        /*modify end 使用服务替代controller*/
 
         startActivity(intent);
 
@@ -208,23 +171,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(LOG_TAG, "performItemClick");
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
                 .getMusicItemById(mMusicItemAdapter.getItem(position).getmId());
-        /*modify begin 使用服务替代controller*/
-//        playController.play(mMusicItem);
-        mBoundService.playMusic(mMusicItem);
-        /*modify end 使用服务替代controller*/
+        int id = mMusicItemAdapter.getItem(position).getmId();//选中列表中的歌曲,把id传到playMusic里面去
+        mBoundService.listClickMusicPlay(id);
 
 //
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d(LOG_TAG, "onStop()");
+        super.onStop();
+//        doUnbindService();
     }
 
     @Override
     protected void onDestroy() {
         Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
-        /*modify begin 使用服务替代controller*/
-//        playController.destroy();
         mBoundService.stopMusic();
         doUnbindService();
-        /*modify end 使用服务替代controller*/
+
     }
 
     @Override
@@ -232,12 +198,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Log.d(LOG_TAG, "onResume");
         super.onResume();
+
     }
 
     @Override
     protected void onRestart() {
+        Log.d(LOG_TAG,"onRestart()");
+        mBoundService.setmFrontActivityId(0);
         super.onRestart();
-//        updateButtonUI(playController.getPlayState());
+//        doBindService();
     }
 
     @Override
@@ -248,6 +217,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateView(int playState) {
         updateButtonUI(playState);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(LOG_TAG,"onNewIntent(Intent intent)");
+        super.onNewIntent(intent);
+
+//        int messageType = getIntent().getIntExtra("message", 0);
+        switch (mBoundService.getmFrontActivityId()){
+            case 0:
+                //啥也不做
+                break;
+            case 1:
+                Intent intentToDetails = new Intent(this, MusicDetailsActivity.class);
+                intentToDetails.putExtra("id", mBoundService.getPlayingId());
+                startActivity(intentToDetails);
+                break;
+            default:
+                break;
+        }
     }
 }
 
