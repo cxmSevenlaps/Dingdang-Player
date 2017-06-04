@@ -18,7 +18,8 @@ import java.util.List;
 
 public class DatabaseModel {
     private static final String LOG_TAG = "DatabaseModel";
-    private static final String MUSIC_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/dingdangplayer/song";
+    private static final String MUSIC_DIR = Environment
+            .getExternalStorageDirectory().getAbsolutePath() + "/dingdangplayer/song_bak";
     private MusicDao mMusicDao;
     private static DatabaseModel databaseModelInstance;
 
