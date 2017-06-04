@@ -39,7 +39,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private ImageButton mIbtnPlayNext;
 
     private Handler mHandler = null;
-    private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突;true说明正在拖动还没放手
+    private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突;true说明用户正在拖动还没放手
 
     private MusicService.MusicBinder mMusicBinder;
     private MusicService mBoundService;
@@ -84,8 +84,6 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             unbindService(mConnection);
             mIsBound = false;
         }
-
-//        mBoundService.setmFrontActivityId(0);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     /**
-     * 初始化界面
+     * 初始化界面,和所播放的歌曲数据无关的初始化都放在这里。即播哪首歌都要做的事情
      */
     private void initView() {
         mTextViewTitle = (TextView) findViewById(R.id.tv_title);
@@ -134,13 +132,13 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
         mIbtnPlayOrPause.setImageResource(R.mipmap.play);//初始化,什么都没选,直接点到details页面的话显示播放图片
 
-        setArtWork();
+//        setArtWork();
     }
 
-    private void setArtWork() {
+    private void updateArtWork() {
         Log.d(LOG_TAG, "setArtWork()");
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
-                .getMusicItemById(mMusicId);
+                .getMusicItemById(mBoundService.getPlayingId());
         byte[] artWork = mMusicItem.getmArtWork();
         if (artWork != null) {
             Bitmap bitmap = BitmapFactory
@@ -265,6 +263,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateTitleTextView();
         updateArtistTextView();
         updateMaxTextView();
+        updateArtWork();
     }
 
     /**

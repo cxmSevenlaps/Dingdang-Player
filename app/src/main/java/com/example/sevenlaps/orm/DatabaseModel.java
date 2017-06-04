@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.sevenlaps.controller.LoadStateConstant;
+import com.example.sevenlaps.dingdangplayer.MainActivity;
 import com.example.sevenlaps.dingdangplayer.MusicItem;
 import com.example.sevenlaps.loader.MusicLoader;
 
@@ -16,7 +18,7 @@ import java.util.List;
 
 public class DatabaseModel {
     private static final String LOG_TAG = "DatabaseModel";
-    private static final String MUSIC_DIR= Environment.getExternalStorageDirectory().getAbsolutePath()+"/qqmusic/song";
+    private static final String MUSIC_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/dingdangplayer/song";
     private MusicDao mMusicDao;
     private static DatabaseModel databaseModelInstance;
 
@@ -24,8 +26,8 @@ public class DatabaseModel {
         mMusicDao = new MusicDaoImplement(context);
     }
 
-    public static DatabaseModel getDatabaseModelInstance(Context context){
-        if (null== databaseModelInstance){
+    public static DatabaseModel getDatabaseModelInstance(Context context) {
+        if (null == databaseModelInstance) {
             databaseModelInstance = new DatabaseModel(context);
         }
         return databaseModelInstance;
@@ -33,31 +35,31 @@ public class DatabaseModel {
 
     /**
      * 从数据库加载音乐
+     *
      * @param context
      * @return
      */
-    public List<MusicItem> loadMusic(Context context){
+    public List<MusicItem> loadMusic(Context context) {
         Log.d(LOG_TAG, "loadMusic(Context context)");
+        MainActivity.setmLoadState(LoadStateConstant.IS_LOADING);
         List<MusicItem> items = null;
         //如果数据库里面有,就load数据库里的
         items = loadMusicDataFromDatabase();
-        if (items.isEmpty()){
+        if (items.isEmpty()) {
             //如果数据库里面没有,就查sd卡
-//            items = new MusicLoader().getMusicDataFromSDCard(context);
             items = new MusicLoader().loadMusicListFromSDCard(MUSIC_DIR);
             //查完就赶紧更新数据库
             mMusicDao.insertItems(items);
         }
-        /*add begin by cxm 20170519  修改bug：刚安装完app时候，点击列表播放歌曲会闪退。原因是没有从数据库里面取，
-        导致歌曲mId没有初始化 */
         items = loadMusicDataFromDatabase();//所有的歌曲数据都从数据库里面取
-        /*add end by cxm 20170519  修改bug：刚安装完app时候，点击列表播放歌曲会闪退。原因是没有从数据库里面取，
-        导致歌曲mId没有初始化 */
-         return items;
+        MainActivity.setmLoadState(LoadStateConstant.HAS_LOADED);
+        return items;
     }
+
 
     /**
      * 从数据库里面取出所有的音乐信息
+     *
      * @return
      */
     private List<MusicItem> loadMusicDataFromDatabase() {
@@ -66,22 +68,21 @@ public class DatabaseModel {
         return mMusicDao.getAll();
     }
 
-    public void updateMusicDatabase(List<MusicItem> items){
+    public void updateMusicDatabase(List<MusicItem> items) {
         mMusicDao.insertItems(items);
     }
 
     /**
-     *
      * @param id
      * @return
      */
-    public MusicItem getMusicItemById(int id){
+    public MusicItem getMusicItemById(int id) {
         MusicItem musicItem = new MusicItem();
         musicItem = mMusicDao.getItemById(id);
         return musicItem;
     }
 
-    public int getItemsQuantity(){
+    public int getItemsQuantity() {
         int itemsQuantity = 0;
 
         itemsQuantity = mMusicDao.getItemsQuantity();

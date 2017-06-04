@@ -4,7 +4,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +14,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.example.sevenlaps.controller.LoadStateConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
@@ -28,6 +33,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mBtnDetails;
     private ImageButton mIBtnPlayOrPause;
     private MusicItem mMusicItem;
+
+    private CountThread mCountThread;
+    private LoadThread mLoadThread;
+    private ProgressBar mLoadPBar;
+    private TextView mPBarText;
+    private static int mLoadState = LoadStateConstant.INIT;
+    private static final int LOAD_FINISHED = 1;
+    private Handler mHandler = null;
 
     private MusicService mBoundService;
     private MusicService.MusicBinder mMusicBinder;
@@ -75,14 +88,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreate(Bundle savedInstanceState)");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initView();
 
-        mServiceIntent = new Intent(MainActivity.this, MusicService.class);
-        doBindService();
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case LOAD_FINISHED:
+                        Log.d(LOG_TAG, "make the ProgressBar Gone!");
+                        mLoadPBar.setVisibility(View.GONE);
+                        mPBarText.setVisibility(View.GONE);
+                        mIBtnPlayOrPause.setVisibility(View.VISIBLE);
+                        mBtnDetails.setVisibility(View.VISIBLE);
+                        if (mCountThread != null) {
+                            mCountThread.interrupt();//终止线程
+                        }
+                        if (mLoadThread != null) {
+                            mLoadThread.interrupt();
+                        }
+
+                        mMusicItemAdapter = new MusicItemAdapter(mMusicList, MainActivity.this);
+                        mMusicListView.setAdapter(mMusicItemAdapter);
+                        mServiceIntent = new Intent(MainActivity.this, MusicService.class);
+                        doBindService();
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        };
     }
+
 
     private void initView() {
 
@@ -94,10 +136,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMusicListView.setOnItemClickListener(this);
         mIBtnPlayOrPause.setImageResource(R.mipmap.play);
 
-        mMusicList = new ArrayList<MusicItem>();
-        mMusicList = DatabaseModel.getDatabaseModelInstance(this).loadMusic(this);
-        mMusicItemAdapter = new MusicItemAdapter(mMusicList, this);
-        mMusicListView.setAdapter(mMusicItemAdapter);
+        mLoadPBar = (ProgressBar) findViewById(R.id.pbar_load_music);
+        mPBarText = (TextView) findViewById(R.id.pbar_text);
+        mIBtnPlayOrPause.setVisibility(View.GONE);//加载完音乐再显示
+        mBtnDetails.setVisibility(View.GONE);
+
+        mCountThread = new CountThread();
+        mLoadThread = new LoadThread();
+        mCountThread.start();
+        mLoadThread.start();
+
     }
 
     @Override
@@ -191,6 +239,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBoundService.stopMusic();
         doUnbindService();
 
+        if (mCountThread != null) {
+            mCountThread.interrupt();
+        }
     }
 
     @Override
@@ -203,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onRestart() {
-        Log.d(LOG_TAG,"onRestart()");
+        Log.d(LOG_TAG, "onRestart()");
         mBoundService.setmFrontActivityId(0);
         super.onRestart();
 //        doBindService();
@@ -221,11 +272,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d(LOG_TAG,"onNewIntent(Intent intent)");
+        Log.d(LOG_TAG, "onNewIntent(Intent intent)");
         super.onNewIntent(intent);
 
 //        int messageType = getIntent().getIntExtra("message", 0);
-        switch (mBoundService.getmFrontActivityId()){
+        switch (mBoundService.getmFrontActivityId()) {
             case 0:
                 //啥也不做
                 break;
@@ -238,6 +289,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    public static int getmLoadState() {
+        return mLoadState;
+    }
+
+    public static void setmLoadState(int mLoadState) {
+        MainActivity.mLoadState = mLoadState;
+    }
+
+    private class CountThread extends Thread {
+        public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
+        @Override
+        public void run() {
+            super.run();
+            Log.d(LOG_TAG, "CountThread");
+            while (!exit) {
+                try {
+                    Thread.sleep(200);
+                    Log.d(LOG_TAG, "CountThread is sleeping");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (mLoadState == LoadStateConstant.HAS_LOADED) {
+                    Log.d(LOG_TAG,"mLoadState = "+ mLoadState);
+                    mHandler.sendEmptyMessage(LOAD_FINISHED);
+                    exit=true;
+                } else {
+                    //设置进度值
+                }
+            }
+        }
+    }
+
+    private class LoadThread extends Thread {
+        public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
+        @Override
+        public void run() {
+            super.run();
+            while(!exit) {
+                mMusicList = new ArrayList<MusicItem>();
+                mMusicList = DatabaseModel.getDatabaseModelInstance(MainActivity.this).loadMusic(MainActivity.this);
+                exit = true;
+                //loadMusic中设置loadState
+            }
+        }
+    }
+
+
 }
 
 
