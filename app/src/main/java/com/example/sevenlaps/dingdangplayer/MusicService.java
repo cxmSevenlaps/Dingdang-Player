@@ -19,7 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicService extends Service {
+public class MusicService extends Service implements MediaPlayer.OnCompletionListener{
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(LOG_TAG, "onCompletion");
+        playNext();
+    }
+
     public interface OnMusicStateChangedListener {
         public void onMusicStateChanged(int playState);
     }
@@ -175,6 +181,7 @@ public class MusicService extends Service {
         if (!mMediaPlayer.isPlaying()) {
             //如果还没开始播放，就开始
             mMediaPlayer.start();
+            mMediaPlayer.setOnCompletionListener(this);
             setPlayState(PlayStateConstant.ISPLAYING);
         }
     }
