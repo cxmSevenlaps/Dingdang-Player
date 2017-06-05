@@ -16,10 +16,12 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.text.SimpleDateFormat;
+
 
 public class MusicDetailsActivity extends AppCompatActivity implements View.OnClickListener,
         SeekBar.OnSeekBarChangeListener, MusicService.OnMusicStateChangedListener {
@@ -34,6 +36,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private static SeekBar mSeekBar;
     private SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
 
+    private ImageButton mIbtnPlayMode;
     private ImageButton mIbtnPlayOrPause;
     private ImageButton mIbtnPlayPrevious;
     private ImageButton mIbtnPlayNext;
@@ -119,14 +122,19 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mImageViewArtWork = (ImageView) findViewById(R.id.iv_art_wrok);
         mTextViewDuration = (TextView) findViewById(R.id.tv_duration);
         mTextViewCurrentTime = (TextView) findViewById(R.id.tv_current_time);
+        mIbtnPlayMode = (ImageButton) findViewById(R.id.ibtn_playmode);
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
         mIbtnPlayPrevious = (ImageButton) findViewById(R.id.ibtn_details_play_previous);
         mIbtnPlayNext = (ImageButton) findViewById(R.id.ibtn_details_play_next);
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
         mSeekBar.setOnSeekBarChangeListener(this);
+
+        mIbtnPlayMode.setOnClickListener(this);
         mIbtnPlayOrPause.setOnClickListener(this);
         mIbtnPlayPrevious.setOnClickListener(this);
         mIbtnPlayNext.setOnClickListener(this);
+
+//        mIbtnPlayMode.setImageResource(R.id.);
 
         mIbtnPlayPrevious.setImageResource(R.mipmap.play_previous);
         mIbtnPlayNext.setImageResource(R.mipmap.play_next);
@@ -144,8 +152,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             Bitmap bitmap = BitmapFactory
                     .decodeByteArray(mMusicItem.getmArtWork(), 0, mMusicItem.getmArtWork().length);
             mImageViewArtWork.setImageBitmap(bitmap);
-        }
-        else {
+        } else {
             mImageViewArtWork.setImageResource(R.mipmap.ic_launcher);
         }
     }
@@ -206,6 +213,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.ibtn_playmode:
+                selectPlayMode();
+                break;
             case R.id.ibtn_details_play_or_pause:
                 performBtnPlayOrPauseClick();
 
@@ -215,6 +225,26 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.ibtn_details_play_next:
                 performBtnPlayNext();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void selectPlayMode() {
+        int playMode = mBoundService.getmPlayMode();
+        switch (playMode) {
+            case PlayModeConstant.PLAYMODE_SEQUENTIAL:
+                mBoundService.setmPlayMode(PlayModeConstant.PLAYMODE_RANDOM);
+                updatePlayModeBtnImage();
+                break;
+            case PlayModeConstant.PLAYMODE_RANDOM:
+                mBoundService.setmPlayMode(PlayModeConstant.PLAYMODE_SINGLE_CYCLE);
+                updatePlayModeBtnImage();
+                break;
+            case PlayModeConstant.PLAYMODE_SINGLE_CYCLE:
+                mBoundService.setmPlayMode(PlayModeConstant.PLAYMODE_SEQUENTIAL);
+                updatePlayModeBtnImage();
                 break;
             default:
                 break;
@@ -260,6 +290,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
      */
     private void updateView(int playState) {
         mSeekBar.setMax(mBoundService.getmMediaPlayer().getDuration());
+        updatePlayModeBtnImage();
         updateBtnPlayOrPauseImage(playState);
         updateTitleTextView();
         updateArtistTextView();
@@ -267,6 +298,21 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateArtWork();
     }
 
+    private void updatePlayModeBtnImage(){
+        switch (mBoundService.getmPlayMode()) {
+            case PlayModeConstant.PLAYMODE_SEQUENTIAL:
+                mIbtnPlayMode.setImageResource(R.mipmap.cycle);
+                break;
+            case PlayModeConstant.PLAYMODE_RANDOM:
+                mIbtnPlayMode.setImageResource(R.mipmap.random);
+                break;
+            case PlayModeConstant.PLAYMODE_SINGLE_CYCLE:
+                mIbtnPlayMode.setImageResource(R.mipmap.singlecycle);
+                break;
+            default:
+                break;
+        }
+    }
     /**
      * 更新"播放/暂停"按钮图标
      *

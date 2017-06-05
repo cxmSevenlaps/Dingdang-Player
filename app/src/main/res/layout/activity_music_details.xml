@@ -61,7 +61,11 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-
+        <ImageButton
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:id="@+id/ibtn_playmode"
+            android:scaleType="centerInside"/>
         <ImageButton
             android:id="@+id/ibtn_details_play_previous"
             android:layout_width="75dp"

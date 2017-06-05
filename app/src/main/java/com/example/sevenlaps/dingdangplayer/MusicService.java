@@ -12,14 +12,23 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class MusicService extends Service implements MediaPlayer.OnCompletionListener{
+public class MusicService extends Service implements MediaPlayer.OnCompletionListener {
+    private final int FIRST_SONG_ID = 1;//列表中第一首歌的ID
+
+    /**
+     * 监听播放模式
+     *
+     * @param mp
+     */
     @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(LOG_TAG, "onCompletion");
@@ -37,6 +46,16 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     private String path;
     private int mNumberOfSongs = 0;
     private int mFrontActivityId = 0;//标识那个Activity在最前面, 0是MainActivity, 1是DetailsActivity
+
+    private int mPlayMode = PlayModeConstant.PLAYMODE_SEQUENTIAL;
+
+    public void setmPlayMode(int mPlayMode) {
+        this.mPlayMode = mPlayMode;
+    }
+
+    public int getmPlayMode() {
+        return mPlayMode;
+    }
 
     private static final String LOG_TAG = "MusicService";
     private final IBinder musicBinder = new MusicBinder();
@@ -62,12 +81,12 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     }
 
     public int getmFrontActivityId() {
-        Log.d(LOG_TAG, " getmFrontActivityId() ,mFrontActivityId= "+mFrontActivityId);
+        Log.d(LOG_TAG, " getmFrontActivityId() ,mFrontActivityId= " + mFrontActivityId);
         return mFrontActivityId;
     }
 
     public void setmFrontActivityId(int mFrontActivityId) {
-        Log.d(LOG_TAG, " setmFrontActivityId() ,mFrontActivityId= "+mFrontActivityId);
+        Log.d(LOG_TAG, " setmFrontActivityId() ,mFrontActivityId= " + mFrontActivityId);
         this.mFrontActivityId = mFrontActivityId;
     }
 
@@ -181,7 +200,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         if (!mMediaPlayer.isPlaying()) {
             //如果还没开始播放，就开始
             mMediaPlayer.start();
-            mMediaPlayer.setOnCompletionListener(this);
+            mMediaPlayer.setOnCompletionListener(this);//设置监听，歌曲结束时候的动作
             setPlayState(PlayStateConstant.ISPLAYING);
         }
 
@@ -199,14 +218,33 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         initMediaPlayerFile();
     }
 
+    /**
+     * 播放下一曲（根据播放模式）
+     */
     public void playNext() {
         Log.d(LOG_TAG, "playNext()");
-        if (playingId == mNumberOfSongs) {
-            playingId = 1;//如果是最后一首了,下一曲设置为第一首
+        switch (mPlayMode) {
+            case PlayModeConstant.PLAYMODE_SEQUENTIAL:
+                if (playingId == mNumberOfSongs) {
+                    playingId = FIRST_SONG_ID;//如果是最后一首了,下一曲设置为第一首
 
-        } else {
-            playingId++;
+                } else {
+                    playingId++;
+                }
+                break;
+            case PlayModeConstant.PLAYMODE_RANDOM:
+                do {
+                    playingId = new Random().nextInt(mNumberOfSongs);
+                }while (playingId==0);
+                break;
+            case PlayModeConstant.PLAYMODE_SINGLE_CYCLE:
+                //playingId不变
+                break;
+            default:
+                break;
+
         }
+
         initMediaPlayerFile();
         playMusic();
         setPlayState(PlayStateConstant.ISPLAYING);
@@ -215,10 +253,26 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
     public void playPrevious() {
         Log.d(LOG_TAG, "playPrevious()");
-        if (playingId == 1) {
-            playingId = mNumberOfSongs;//如果是第一首,上一曲设置为列表最后一首
-        } else {
-            playingId--;
+
+        switch (mPlayMode) {
+            case PlayModeConstant.PLAYMODE_SEQUENTIAL:
+                if (playingId == 1) {
+                    playingId = mNumberOfSongs;//如果是第一首,上一曲设置为列表最后一首
+                } else {
+                    playingId--;
+                }
+                break;
+            case PlayModeConstant.PLAYMODE_RANDOM:
+                do {
+                    playingId = new Random().nextInt(mNumberOfSongs);
+                }while (playingId==0);
+                break;
+            case PlayModeConstant.PLAYMODE_SINGLE_CYCLE:
+                //playingId不变
+                break;
+            default:
+                break;
+
         }
         initMediaPlayerFile();
         playMusic();
@@ -286,7 +340,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
     public void updateNotification() {
         Log.d(LOG_TAG, "updateNotification");
-        Intent intent=new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
 
 //        intent.putExtra("message", mFrontActivityId);
 //        intent.putExtra("message", 1);
@@ -319,7 +373,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         notificationManager.notify(NOTIFICATION_DINGDANG_MUSIC, notification);
     }
 
-    private Intent[] makeIntentStack(Context context){
+    private Intent[] makeIntentStack(Context context) {
         Log.d(LOG_TAG, "makeIntentStack(Context context)");
         Intent[] intents = new Intent[2];
         intents[0] = Intent.makeRestartActivityTask(new ComponentName(context, MainActivity.class));
