@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="加载中..."/>
+        android:text="@string/loading_songs"/>
     <ListView
         android:id="@+id/listview_music_list"
         android:layout_width="match_parent"

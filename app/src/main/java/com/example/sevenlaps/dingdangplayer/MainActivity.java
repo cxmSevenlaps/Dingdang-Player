@@ -34,12 +34,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton mIBtnPlayOrPause;
     private MusicItem mMusicItem;
 
+    /*progressbar相关定义*/
     private CountThread mCountThread;
     private LoadThread mLoadThread;
     private ProgressBar mLoadPBar;
     private TextView mPBarText;
     private static int mLoadState = LoadStateConstant.INIT;
-    private static final int LOAD_FINISHED = 1;
     private Handler mHandler = null;
 
     private MusicService mBoundService;
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what) {
-                    case LOAD_FINISHED:
+                    case LoadStateConstant.HAS_LOADED:
                         Log.d(LOG_TAG, "make the ProgressBar Gone!");
                         mLoadPBar.setVisibility(View.GONE);
                         mPBarText.setVisibility(View.GONE);
@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (mLoadState == LoadStateConstant.HAS_LOADED) {
                     Log.d(LOG_TAG,"mLoadState = "+ mLoadState);
-                    mHandler.sendEmptyMessage(LOAD_FINISHED);
+                    mHandler.sendEmptyMessage(LoadStateConstant.HAS_LOADED);
                     exit=true;
                 } else {
                     //设置进度值
