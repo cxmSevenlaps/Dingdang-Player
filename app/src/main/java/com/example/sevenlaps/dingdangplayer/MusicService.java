@@ -184,6 +184,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
             mMediaPlayer.setOnCompletionListener(this);
             setPlayState(PlayStateConstant.ISPLAYING);
         }
+
+
     }
 
     public void pauseMusic() {
@@ -239,7 +241,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         Log.d(LOG_TAG, "onCreate()");
         musicStateChangedListeners = new ArrayList<OnMusicStateChangedListener>();//初始化监听列表
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        showNotification();
+//        showNotification();
     }
 
     @Override
@@ -282,8 +284,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         }
     }
 
-    private void showNotification() {
-        Log.d(LOG_TAG, "showNotification");
+    public void updateNotification() {
+        Log.d(LOG_TAG, "updateNotification");
         Intent intent=new Intent(this, MainActivity.class);
 
 //        intent.putExtra("message", mFrontActivityId);
@@ -300,7 +302,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 //        }
 
         PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, intent, 0);
+                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 //        PendingIntent pendingIntent = PendingIntent
 //                .getActivities(this, 0, makeIntentStack(this), 0);
         MusicItem item = DatabaseModel.getDatabaseModelInstance(this)

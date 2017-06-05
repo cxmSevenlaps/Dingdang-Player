@@ -264,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(mBoundService.getPlayState());
+        mBoundService.updateNotification();//状态改变及时更新到通知栏
     }
 
     private void updateView(int playState) {

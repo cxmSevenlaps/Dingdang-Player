@@ -250,6 +250,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(playState);
+        mBoundService.updateNotification();//更新通知栏
     }
 
     /**
