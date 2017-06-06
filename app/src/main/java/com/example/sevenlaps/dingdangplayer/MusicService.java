@@ -262,7 +262,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
                     playingId--;
                 }
                 break;
-            case PlayModeConstant.PLAYMODE_RANDOM:
+            case PlayModeConstant.PLAYMODE_RANDOM://歌曲是从1开始的
                 do {
                     playingId = new Random().nextInt(mNumberOfSongs);
                 }while (playingId==0);
