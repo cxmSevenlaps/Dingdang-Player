@@ -25,6 +25,8 @@ import com.example.sevenlaps.controller.LoadStateConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.notification.DingdangNotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
+import com.example.sevenlaps.utils.*;
+import com.example.sevenlaps.utils.ActivityContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static int mLoadState = LoadStateConstant.INIT;
     private Handler mHandler = null;
 
-    private ExitReceiver exitReceiver = new ExitReceiver();
+//    private ExitReceiver exitReceiver = new ExitReceiver();
 
     private MusicService mBoundService;
     private MusicService.MusicBinder mMusicBinder;
@@ -131,10 +133,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
-        /*注册退出广播*/
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.sevenlaps.notification.action.closenotice");
-        registerReceiver(exitReceiver, filter);
+        /*注册退出时候的广播*/
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("com.example.sevenlaps.notification.action.closenotice");
+//        registerReceiver(exitReceiver, filter);
+
+        ActivityContainer.getContainer().addActivity(this);
     }
 
 
@@ -255,6 +259,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mCountThread != null) {
             mCountThread.interrupt();
         }
+
+        ActivityContainer.getContainer().removeActivity(this);
     }
 
     @Override
@@ -278,8 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(mBoundService.getPlayState());
 //        mBoundService.updateNotification();//状态改变及时更新到通知栏
-        DingdangNotificationHelper.sendNotification(this,
-                DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId()));
+        DingdangNotificationHelper.sendNotification(this,mBoundService);
     }
 
     private void updateView(int playState) {
@@ -352,16 +357,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    class ExitReceiver extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int notificationId = intent.getIntExtra(DingdangNotificationHelper.KEY_NOTICE_ID, -1);
-            if (notificationId!=-1){
-                MainActivity.this.finish();
-            }
-        }
-    }
+//    class ExitReceiver extends BroadcastReceiver{
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Log.d(LOG_TAG, "onReceive(Context context, Intent intent)");
+//            int notificationId = intent.getIntExtra(DingdangNotificationHelper.KEY_NOTICE_ID, -1);
+//            if (notificationId!=-1){
+//                ActivityContainer.getContainer().finishAllActivities();
+//            }
+//        }
+//    }
 }
 
 

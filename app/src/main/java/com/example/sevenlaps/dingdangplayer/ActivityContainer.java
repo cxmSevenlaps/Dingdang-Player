@@ -5,4 +5,5 @@ package com.example.sevenlaps.dingdangplayer;
  */
 
 public class ActivityContainer {
+
 }

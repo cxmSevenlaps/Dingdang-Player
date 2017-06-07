@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.example.sevenlaps.dingdangplayer.MainActivity;
+import com.example.sevenlaps.utils.ActivityContainer;
 
 public class ClearNotificationBroadcastReceiver extends BroadcastReceiver {
     public ClearNotificationBroadcastReceiver() {
@@ -17,7 +18,7 @@ public class ClearNotificationBroadcastReceiver extends BroadcastReceiver {
         int notificationId = intent.getIntExtra(DingdangNotificationHelper.KEY_NOTICE_ID, -1);
         if (notificationId!=-1){
             DingdangNotificationHelper.clearNotification(context, notificationId);
-
+            ActivityContainer.getContainer().finishAllActivities();
         }
         throw new UnsupportedOperationException("Not yet implemented");
     }

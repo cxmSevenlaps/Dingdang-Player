@@ -20,6 +20,8 @@ import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.notification.DingdangNotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
+import com.example.sevenlaps.utils.*;
+import com.example.sevenlaps.utils.ActivityContainer;
 
 import java.text.SimpleDateFormat;
 
@@ -111,6 +113,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 
         mServiceIntent = new Intent(this, MusicService.class);
         doBindService();
+
+        ActivityContainer.getContainer().addActivity(this);
 
     }
 
@@ -282,8 +286,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(playState);
 //        mBoundService.updateNotification();//更新通知栏
-        DingdangNotificationHelper.sendNotification(this,
-                DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId()));
+        DingdangNotificationHelper.sendNotification(this,mBoundService);
     }
 
     /**
@@ -381,6 +384,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mHandler.removeCallbacks(mRunnable);
 //        mBoundService.setmFrontActivityId(0);
         super.onDestroy();
+
+        ActivityContainer.getContainer().removeActivity(this);
     }
 
     @Override
