@@ -29,9 +29,7 @@
             android:exported="true" />
 
         <receiver
-            android:name="com.example.sevenlaps.notification.ClearNotificationBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:name="com.example.sevenlaps.notification.ClearNotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.example.sevenlaps.notification.action.closenotice"/>
             </intent-filter>

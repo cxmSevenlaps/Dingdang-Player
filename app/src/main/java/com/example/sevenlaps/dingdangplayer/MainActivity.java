@@ -291,25 +291,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateButtonUI(playState);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        Log.d(LOG_TAG, "onNewIntent(Intent intent)");
-        super.onNewIntent(intent);
-
-//        int messageType = getIntent().getIntExtra("message", 0);
-        switch (mBoundService.getmFrontActivityId()) {
-            case 0:
-                //啥也不做
-                break;
-            case 1:
-                Intent intentToDetails = new Intent(this, MusicDetailsActivity.class);
-                intentToDetails.putExtra("id", mBoundService.getPlayingId());
-                startActivity(intentToDetails);
-                break;
-            default:
-                break;
-        }
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        Log.d(LOG_TAG, "onNewIntent(Intent intent)");
+//        super.onNewIntent(intent);
+//
+////        int messageType = getIntent().getIntExtra("message", 0);
+//        switch (mBoundService.getmFrontActivityId()) {
+//            case 0:
+//                //啥也不做
+//                break;
+//            case 1:
+//                Intent intentToDetails = new Intent(this, MusicDetailsActivity.class);
+//                intentToDetails.putExtra("id", mBoundService.getPlayingId());
+//                startActivity(intentToDetails);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
     public static int getmLoadState() {
         return mLoadState;

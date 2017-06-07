@@ -294,7 +294,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         super.onCreate();
         Log.d(LOG_TAG, "onCreate()");
         musicStateChangedListeners = new ArrayList<OnMusicStateChangedListener>();//初始化监听列表
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 //        showNotification();
     }
 
@@ -308,7 +308,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     public void onDestroy() {
         Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
-        notificationManager.cancel(NOTIFICATION_DINGDANG_MUSIC);
+//        notificationManager.cancel(NOTIFICATION_DINGDANG_MUSIC);
     }
 
     private void initMediaPlayerFile() {
@@ -338,40 +338,40 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         }
     }
 
-    public void updateNotification() {
-        Log.d(LOG_TAG, "updateNotification");
-        Intent intent = new Intent(this, MainActivity.class);
-
-//        intent.putExtra("message", mFrontActivityId);
-//        intent.putExtra("message", 1);
-//        switch (mFrontActivityId) {
-//            case 0:
-//                intent = new Intent(this, MainActivity.class);
-//                break;
-//            case 1:
-//                intent = new Intent(this, MusicDetailsActivity.class);
-//                break;
-//            default:
-//                break;
-//        }
-
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        PendingIntent pendingIntent = PendingIntent
-//                .getActivities(this, 0, makeIntentStack(this), 0);
-        MusicItem item = DatabaseModel.getDatabaseModelInstance(this)
-                .getMusicItemById(playingId);
-        Notification notification = new Notification.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setTicker(item.getMusicTitle())
-                .setWhen(System.currentTimeMillis())
-                .setContentTitle(item.getMusicTitle())
-                .setContentText(item.getmArtist())
-                .setContentIntent(pendingIntent)
-                .build();
-
-        notificationManager.notify(NOTIFICATION_DINGDANG_MUSIC, notification);
-    }
+//    public void updateNotification() {
+//        Log.d(LOG_TAG, "updateNotification");
+//        Intent intent = new Intent(this, MainActivity.class);
+//
+////        intent.putExtra("message", mFrontActivityId);
+////        intent.putExtra("message", 1);
+////        switch (mFrontActivityId) {
+////            case 0:
+////                intent = new Intent(this, MainActivity.class);
+////                break;
+////            case 1:
+////                intent = new Intent(this, MusicDetailsActivity.class);
+////                break;
+////            default:
+////                break;
+////        }
+//
+//        PendingIntent pendingIntent =
+//                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+////        PendingIntent pendingIntent = PendingIntent
+////                .getActivities(this, 0, makeIntentStack(this), 0);
+//        MusicItem item = DatabaseModel.getDatabaseModelInstance(this)
+//                .getMusicItemById(playingId);
+//        Notification notification = new Notification.Builder(this)
+//                .setSmallIcon(R.mipmap.ic_launcher)
+//                .setTicker(item.getMusicTitle())
+//                .setWhen(System.currentTimeMillis())
+//                .setContentTitle(item.getMusicTitle())
+//                .setContentText(item.getmArtist())
+//                .setContentIntent(pendingIntent)
+//                .build();
+//
+//        notificationManager.notify(NOTIFICATION_DINGDANG_MUSIC, notification);
+//    }
 
     private Intent[] makeIntentStack(Context context) {
         Log.d(LOG_TAG, "makeIntentStack(Context context)");
