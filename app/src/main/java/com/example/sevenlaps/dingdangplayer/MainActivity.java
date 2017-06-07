@@ -1,7 +1,10 @@
 package com.example.sevenlaps.dingdangplayer;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mPBarText;
     private static int mLoadState = LoadStateConstant.INIT;
     private Handler mHandler = null;
+
+    private ExitReceiver exitReceiver = new ExitReceiver();
 
     private MusicService mBoundService;
     private MusicService.MusicBinder mMusicBinder;
@@ -125,6 +130,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
+
+        /*注册退出广播*/
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.example.sevenlaps.notification.action.closenotice");
+        registerReceiver(exitReceiver, filter);
     }
 
 
@@ -342,7 +352,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    class ExitReceiver extends BroadcastReceiver{
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int notificationId = intent.getIntExtra(DingdangNotificationHelper.KEY_NOTICE_ID, -1);
+            if (notificationId!=-1){
+                MainActivity.this.finish();
+            }
+        }
+    }
 }
 
 

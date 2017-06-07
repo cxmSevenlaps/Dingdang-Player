@@ -14,9 +14,9 @@
         android:src="@mipmap/ic_launcher" />
 
     <RelativeLayout
+        android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:id="@+id/info"
         android:layout_gravity="center_vertical">
 
         <LinearLayout
@@ -37,20 +37,20 @@
                 android:id="@+id/notification_song_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
-                android:textSize="18sp"
+                android:layout_below="@id/notification_song_title"
                 android:text="未知歌手"
-                android:layout_below="@id/notification_song_title"/>
+                android:textSize="18sp" />
 
         </LinearLayout>
 
         <!--<TextView-->
-            <!--android:id="@+id/notification_time_tv"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="64dp"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_marginLeft="8dp"-->
-            <!--android:textAppearance="@style/TextAppearance.StatusBar.EventContent.Time"-->
-            <!--android:textSize="8sp" />-->
+        <!--android:id="@+id/notification_time_tv"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="64dp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_marginLeft="8dp"-->
+        <!--android:textAppearance="@style/TextAppearance.StatusBar.EventContent.Time"-->
+        <!--android:textSize="8sp" />-->
 
         <ImageView
             android:id="@+id/notification_close_notification"
@@ -58,19 +58,20 @@
             android:layout_height="32dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:background="#e0FFFFFF"
+            android:background="#000"
             android:scaleType="centerInside"
             android:src="@mipmap/push_close" />
+
         <ImageButton
             android:id="@+id/notification_play_pause"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/notification_close_notification"
+            android:background="#e0FFFFFF"
             android:scaleType="centerInside"
-            android:src="@mipmap/play"/>
+            android:src="@mipmap/play" />
     </RelativeLayout>
-
 
 
 </LinearLayout>
