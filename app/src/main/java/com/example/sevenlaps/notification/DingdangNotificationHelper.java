@@ -29,12 +29,12 @@ public class DingdangNotificationHelper {
     public static void sendNotification(Context context, MusicItem song) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);//Ongoing notifications do not have an 'X' close button, and are not affected by the "Clear all" button.
-        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+//        builder.setPriority(NotificationCompat.PRIORITY_MAX);
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.view_dingdang_notification);
-        remoteViews.setTextViewText(R.id.music_title, song.getMusicTitle());
-        remoteViews.setTextViewText(R.id.music_artist, song.getmArtist());
+        remoteViews.setTextViewText(R.id.notification_song_title, song.getMusicTitle());
+        remoteViews.setTextViewText(R.id.notification_song_artist, song.getmArtist());
         remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.ic_launcher);
-        remoteViews.setTextViewText(R.id.time_tv, getTime());
+//        remoteViews.setTextViewText(R.id.notification_time_tv, getTime());
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(KEY_NOTICE_ID, NOTICE_ID);
@@ -42,7 +42,7 @@ public class DingdangNotificationHelper {
         将会导致任何用来放置该activity的已经存在的task里面的已经存在的activity先清空，
         然后该activity再在该task中启动，也就是说，这个新启动的activity变为了这个空tas的根activity.
         所有老的activity都结束掉。该标志必须和FLAG_ACTIVITY_NEW_TASK一起使用。*/
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         int requestCode = (int) SystemClock.uptimeMillis();
         PendingIntent pi = PendingIntent
                 .getActivity(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -53,7 +53,7 @@ public class DingdangNotificationHelper {
         intentCloseNotification.putExtra(KEY_NOTICE_ID, NOTICE_ID);
         PendingIntent piCloseNotification = PendingIntent
                 .getBroadcast(context,requestCode1,intentCloseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViews.setOnClickPendingIntent(R.id.btn_close_notification, piCloseNotification);
+        remoteViews.setOnClickPendingIntent(R.id.notification_close_notification, piCloseNotification);
         builder.setSmallIcon(R.mipmap.ic_launcher);
 
         Notification notification = builder.build();

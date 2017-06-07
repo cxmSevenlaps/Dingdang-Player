@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import com.example.sevenlaps.controller.LoadStateConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
+import com.example.sevenlaps.notification.DingdangNotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.util.ArrayList;
@@ -141,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mIBtnPlayOrPause.setVisibility(View.GONE);//加载完音乐再显示
         mBtnDetails.setVisibility(View.GONE);
 
+        /*监听歌曲是否加载完成的线程*/
         mCountThread = new CountThread();
         mLoadThread = new LoadThread();
         mCountThread.start();
@@ -264,7 +267,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(mBoundService.getPlayState());
-        mBoundService.updateNotification();//状态改变及时更新到通知栏
+//        mBoundService.updateNotification();//状态改变及时更新到通知栏
+        DingdangNotificationHelper.sendNotification(this,
+                DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId()));
     }
 
     private void updateView(int playState) {

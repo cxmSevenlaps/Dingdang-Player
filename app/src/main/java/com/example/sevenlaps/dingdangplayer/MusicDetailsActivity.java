@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
+import com.example.sevenlaps.notification.DingdangNotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.text.SimpleDateFormat;
@@ -280,7 +281,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(playState);
-        mBoundService.updateNotification();//更新通知栏
+//        mBoundService.updateNotification();//更新通知栏
+        DingdangNotificationHelper.sendNotification(this,
+                DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId()));
     }
 
     /**
