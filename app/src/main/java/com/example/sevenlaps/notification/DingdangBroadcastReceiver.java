@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.sevenlaps.dingdangplayer.MainActivity;
+import com.example.sevenlaps.dingdangplayer.MusicService;
 import com.example.sevenlaps.utils.ActivityContainer;
+import com.example.sevenlaps.utils.DingdangApplication;
 
-public class ClearNotificationBroadcastReceiver extends BroadcastReceiver {
+public class DingdangBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "ClearNotificationBR";
-    public ClearNotificationBroadcastReceiver() {
+
+    public DingdangBroadcastReceiver() {
     }
 
     @Override
@@ -30,8 +33,13 @@ public class ClearNotificationBroadcastReceiver extends BroadcastReceiver {
                 DingdangNotificationHelper.clearNotification(context, notificationId);
                 ActivityContainer.getContainer().finishAllActivities();
                 break;
+            case DingdangNotificationHelper.PLAY_OR_PAUSE:
+                DingdangNotificationHelper.playOrPause();
+                break;
             default:break;
         }
 //        throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
 }

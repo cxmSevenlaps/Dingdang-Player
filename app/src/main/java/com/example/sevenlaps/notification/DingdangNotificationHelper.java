@@ -4,28 +4,35 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.dingdangplayer.MainActivity;
 import com.example.sevenlaps.dingdangplayer.MusicItem;
 import com.example.sevenlaps.dingdangplayer.MusicService;
 import com.example.sevenlaps.dingdangplayer.R;
 import com.example.sevenlaps.orm.DatabaseModel;
+import com.example.sevenlaps.utils.DingdangApplication;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.Context.BIND_AUTO_CREATE;
+
 /**
  * Created by chenxianmin on 2017/6/6.
  */
 
-public class DingdangNotificationHelper {
+public class DingdangNotificationHelper{
     public static final String KEY_NOTICE_ID = "NOTICE_ID";
     public static final int NOTICE_ID = 0;
 
@@ -33,11 +40,28 @@ public class DingdangNotificationHelper {
     public static final int CLOSE_NOTICE = 0;
     public static final int PLAY_OR_PAUSE = 1;
 
+
+
     public static final String ACTION_CLOSE_NOTICE = "com.example.sevenlaps.notification.action.closenotice";
+    public static final String ACTION_PLAY_OR_PAUSE = "com.example.sevenlaps.notification.action.playorpausenotice";
 //    public static final int NOTICE_ID = R.string.app_name;
+//    private MusicService mService;
+//    RemoteViews mRemoteViews;
 
     private static final String LOG_TAG = "NotificationHelper";
 
+    private static DingdangNotificationHelper notificationHelper = new DingdangNotificationHelper();
+
+
+    public DingdangNotificationHelper() {
+//        mService = DingdangApplication.getDingdangApplication().getmService();
+//        mService.addMusicStateChangedListener(this);
+    }
+
+    public static DingdangNotificationHelper getNotificationHelper(){
+        return notificationHelper;
+
+    }
     public static void sendNotification(Context context, MusicService service) {
         Log.d(LOG_TAG, "sendNotification");
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -49,6 +73,17 @@ public class DingdangNotificationHelper {
         remoteViews.setTextViewText(R.id.notification_song_artist, song.getmArtist());
         remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.ic_launcher);
 //        remoteViews.setTextViewText(R.id.notification_time_tv, getTime());
+        switch (service.getPlayState()){
+            case PlayStateConstant.ISPLAYING:
+                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.pause);
+                break;
+            case PlayStateConstant.ISPAUSE:
+                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.play);
+                break;
+            default:
+                break;
+        }
+
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(KEY_NOTICE_ID, NOTICE_ID);
@@ -62,6 +97,7 @@ public class DingdangNotificationHelper {
                 .getActivity(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.dingdang_notification, pi);
 
+        /*关闭通知*/
         int requestCode1 = (int) SystemClock.uptimeMillis();
         Intent intentCloseNotification = new Intent(ACTION_CLOSE_NOTICE);
         intentCloseNotification.putExtra(KEY_NOTICE_ID, NOTICE_ID);
@@ -69,6 +105,16 @@ public class DingdangNotificationHelper {
         PendingIntent piCloseNotification = PendingIntent
                 .getBroadcast(context,requestCode1,intentCloseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_close_notification, piCloseNotification);
+
+        /*播放/暂停*/
+        int requestCodePlayOrPause = (int) SystemClock.uptimeMillis();
+        Intent intentPlayOrPauseNotification = new Intent(ACTION_PLAY_OR_PAUSE);
+        intentPlayOrPauseNotification.putExtra(KEY_NOTICE_ID, NOTICE_ID);
+        intentPlayOrPauseNotification.putExtra(NOTIFICATION_CATEGORY, PLAY_OR_PAUSE);
+        PendingIntent piPlayOrPauseNotification = PendingIntent
+                .getBroadcast(context,requestCodePlayOrPause,intentPlayOrPauseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.notification_play_pause, piPlayOrPauseNotification);
+
         builder.setSmallIcon(R.mipmap.ic_launcher);
 
         Notification notification = builder.build();
@@ -94,4 +140,18 @@ public class DingdangNotificationHelper {
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
     }
+
+    public static void playOrPause(){
+        MusicService service = DingdangApplication.getDingdangApplication().getmService();
+        service.playOrPause();
+    }
+
+//    @Override
+//    public void onMusicStateChanged(int playState) {
+//        updatePlayOrPauseBtnImg();
+//    }
+
+//    private void updatePlayOrPauseBtnImg() {
+//
+//    }
 }

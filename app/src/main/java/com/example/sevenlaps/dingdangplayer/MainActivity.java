@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static int mLoadState = LoadStateConstant.INIT;
     private Handler mHandler = null;
 
-//    private ExitReceiver exitReceiver = new ExitReceiver();
+//    private DingdangApplication mApp;//放全局变量
 
     private MusicService mBoundService;
     private MusicService.MusicBinder mMusicBinder;
@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBoundService.addMusicStateChangedListener(MainActivity.this);
             mBoundService.setmNumberOfSongs(mMusicItemAdapter.getCount());
             mBoundService.setmFrontActivityId(0);
+
+//            mApp.setmService(mBoundService);
+            DingdangApplication.getDingdangApplication().setmService(mBoundService);
 
             /*第一次打开app,默认加载列表第一首歌*/
             mBoundService.setPath(DatabaseModel.getDatabaseModelInstance(MainActivity.this)
@@ -100,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(LOG_TAG, "onCreate(Bundle savedInstanceState)");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        mApp = (DingdangApplication) getApplication();
 
         initView();
 
@@ -284,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(mBoundService.getPlayState());
 //        mBoundService.updateNotification();//状态改变及时更新到通知栏
-        DingdangNotificationHelper.sendNotification(this,mBoundService);
+        DingdangNotificationHelper.sendNotification(this, mBoundService);
     }
 
     private void updateView(int playState) {
@@ -321,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private class CountThread extends Thread {
         public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
+
         @Override
         public void run() {
             super.run();
@@ -333,9 +339,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 if (mLoadState == LoadStateConstant.HAS_LOADED) {
-                    Log.d(LOG_TAG,"mLoadState = "+ mLoadState);
+                    Log.d(LOG_TAG, "mLoadState = " + mLoadState);
                     mHandler.sendEmptyMessage(LoadStateConstant.HAS_LOADED);
-                    exit=true;
+                    exit = true;
                 } else {
                     //设置进度值
                 }
@@ -345,10 +351,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private class LoadThread extends Thread {
         public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
+
         @Override
         public void run() {
             super.run();
-            while(!exit) {
+            while (!exit) {
                 mMusicList = new ArrayList<MusicItem>();
                 mMusicList = DatabaseModel.getDatabaseModelInstance(MainActivity.this).loadMusic(MainActivity.this);
                 exit = true;

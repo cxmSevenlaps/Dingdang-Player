@@ -9,7 +9,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="com.example.sevenlaps.utils.DingdangApplication">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask">
@@ -29,9 +30,10 @@
             android:exported="true" />
 
         <receiver
-            android:name="com.example.sevenlaps.notification.ClearNotificationBroadcastReceiver">
+            android:name="com.example.sevenlaps.notification.DingdangBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.example.sevenlaps.notification.action.closenotice"/>
+                <action android:name="com.example.sevenlaps.notification.action.playorpausenotice"/>
             </intent-filter>
         </receiver>
     </application>
