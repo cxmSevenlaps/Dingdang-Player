@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBoundService.setmFrontActivityId(0);
 
 //            mApp.setmService(mBoundService);
+            /*存起来当做全局控制播放用，其他的地方可以调*/
             DingdangApplication.getDingdangApplication().setmService(mBoundService);
 
             /*第一次打开app,默认加载列表第一首歌*/
