@@ -132,6 +132,16 @@ public class NotificationHelper{
         service.playNext();
     }
 
+    public static void pauseMusic(){
+        MusicService service = DingdangApplication.getDingdangApplication().getmService();
+        service.pauseMusic();
+    }
+
+    public static void playMusic(){
+        MusicService service = DingdangApplication.getDingdangApplication().getmService();
+        service.playMusic();
+    }
+
     private static void initRemoteViews(RemoteViews remoteViews, Context context, MusicService service){
         MusicItem song = DatabaseModel.getDatabaseModelInstance(context).getMusicItemById(service.getPlayingId());
         remoteViews.setTextViewText(R.id.notification_song_title, song.getMusicTitle());

@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
@@ -203,14 +204,18 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
             mMediaPlayer.start();
             mMediaPlayer.setOnCompletionListener(this);//设置监听，歌曲结束时候的动作
             setPlayState(PlayStateConstant.ISPLAYING);
+            notifyStateChanged(playState);
         }
 
 
     }
 
     public void pauseMusic() {
+        Log.d(LOG_TAG,"pauseMusic()");
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
+            setPlayState(PlayStateConstant.ISPAUSE);
+            notifyStateChanged(playState);
         }
     }
 
@@ -348,10 +353,13 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     private void registerDingdangReceiver(){
         mReceiver = new DingdangReceiver();
         IntentFilter filter = new IntentFilter();
+        /*监听自定义通知栏信息*/
         filter.addAction(NotificationHelper.ACTION_PLAYNEXT);
         filter.addAction(NotificationHelper.ACTION_CLOSE_NOTICE);
         filter.addAction(NotificationHelper.ACTION_PLAY_OR_PAUSE);
 
+        filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        filter.addAction(AudioManager.ACTION_HEADSET_PLUG);
         registerReceiver(mReceiver, filter);
     }
 }
