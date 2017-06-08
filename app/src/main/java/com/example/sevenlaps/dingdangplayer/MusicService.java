@@ -1,12 +1,11 @@
 package com.example.sevenlaps.dingdangplayer;
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
@@ -14,6 +13,8 @@ import android.util.Log;
 
 import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
+import com.example.sevenlaps.notification.DingdangReceiver;
+import com.example.sevenlaps.notification.NotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.Random;
 
 public class MusicService extends Service implements MediaPlayer.OnCompletionListener {
     private final int FIRST_SONG_ID = 1;//列表中第一首歌的ID
-
+    DingdangReceiver mReceiver;
     /**
      * 监听播放模式
      *
@@ -296,6 +297,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         musicStateChangedListeners = new ArrayList<OnMusicStateChangedListener>();//初始化监听列表
 //        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 //        showNotification();
+
+        registerDingdangReceiver();
     }
 
     @Override
@@ -308,6 +311,10 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     public void onDestroy() {
         Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
+
+        if (mReceiver!=null){
+            unregisterReceiver(mReceiver);
+        }
 //        notificationManager.cancel(NOTIFICATION_DINGDANG_MUSIC);
     }
 
@@ -338,47 +345,13 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         }
     }
 
-//    public void updateNotification() {
-//        Log.d(LOG_TAG, "updateNotification");
-//        Intent intent = new Intent(this, MainActivity.class);
-//
-////        intent.putExtra("message", mFrontActivityId);
-////        intent.putExtra("message", 1);
-////        switch (mFrontActivityId) {
-////            case 0:
-////                intent = new Intent(this, MainActivity.class);
-////                break;
-////            case 1:
-////                intent = new Intent(this, MusicDetailsActivity.class);
-////                break;
-////            default:
-////                break;
-////        }
-//
-//        PendingIntent pendingIntent =
-//                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-////        PendingIntent pendingIntent = PendingIntent
-////                .getActivities(this, 0, makeIntentStack(this), 0);
-//        MusicItem item = DatabaseModel.getDatabaseModelInstance(this)
-//                .getMusicItemById(playingId);
-//        Notification notification = new Notification.Builder(this)
-//                .setSmallIcon(R.mipmap.ic_launcher)
-//                .setTicker(item.getMusicTitle())
-//                .setWhen(System.currentTimeMillis())
-//                .setContentTitle(item.getMusicTitle())
-//                .setContentText(item.getmArtist())
-//                .setContentIntent(pendingIntent)
-//                .build();
-//
-//        notificationManager.notify(NOTIFICATION_DINGDANG_MUSIC, notification);
-//    }
+    private void registerDingdangReceiver(){
+        mReceiver = new DingdangReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NotificationHelper.ACTION_PLAYNEXT);
+        filter.addAction(NotificationHelper.ACTION_CLOSE_NOTICE);
+        filter.addAction(NotificationHelper.ACTION_PLAY_OR_PAUSE);
 
-    private Intent[] makeIntentStack(Context context) {
-        Log.d(LOG_TAG, "makeIntentStack(Context context)");
-        Intent[] intents = new Intent[2];
-        intents[0] = Intent.makeRestartActivityTask(new ComponentName(context, MainActivity.class));
-        intents[1] = new Intent(context, MusicDetailsActivity.class);
-
-        return intents;
+        registerReceiver(mReceiver, filter);
     }
 }

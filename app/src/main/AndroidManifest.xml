@@ -30,11 +30,11 @@
             android:exported="true" />
 
         <receiver
-            android:name="com.example.sevenlaps.notification.DingdangBroadcastReceiver">
-            <intent-filter>
-                <action android:name="com.example.sevenlaps.notification.action.closenotice"/>
-                <action android:name="com.example.sevenlaps.notification.action.playorpausenotice"/>
-            </intent-filter>
+            android:name="com.example.sevenlaps.notification.DingdangReceiver">
+            <!--<intent-filter>-->
+                <!--<action android:name="com.example.sevenlaps.notification.action.closenotice"/>-->
+                <!--<action android:name="com.example.sevenlaps.notification.action.playorpausenotice"/>-->
+            <!--</intent-filter>-->
         </receiver>
     </application>
 

@@ -32,78 +32,53 @@ import static android.content.Context.BIND_AUTO_CREATE;
  * Created by chenxianmin on 2017/6/6.
  */
 
-public class DingdangNotificationHelper{
+public class NotificationHelper{
     public static final String KEY_NOTICE_ID = "NOTICE_ID";
     public static final int NOTICE_ID = 0;
 
+    /*通知的种类*/
     public static final String NOTIFICATION_CATEGORY = "NOTIFICATION_CATEGORY";
-    public static final int CLOSE_NOTICE = 0;
+    public static final int CLOSE_NOTICE = 0;//关闭通知，并退出app
     public static final int PLAY_OR_PAUSE = 1;
+    public static final int PLAY_NEXT = 2;
 
-
-
+    /*通知的过滤器*/
     public static final String ACTION_CLOSE_NOTICE = "com.example.sevenlaps.notification.action.closenotice";
     public static final String ACTION_PLAY_OR_PAUSE = "com.example.sevenlaps.notification.action.playorpausenotice";
-//    public static final int NOTICE_ID = R.string.app_name;
-//    private MusicService mService;
-//    RemoteViews mRemoteViews;
+    public static final String ACTION_PLAYNEXT = "com.example.sevenlaps.notification.action.playnext";
+
 
     private static final String LOG_TAG = "NotificationHelper";
 
-    private static DingdangNotificationHelper notificationHelper = new DingdangNotificationHelper();
-
-
-    public DingdangNotificationHelper() {
-//        mService = DingdangApplication.getDingdangApplication().getmService();
-//        mService.addMusicStateChangedListener(this);
-    }
-
-    public static DingdangNotificationHelper getNotificationHelper(){
-        return notificationHelper;
+    public NotificationHelper() {
 
     }
+
     public static void sendNotification(Context context, MusicService service) {
         Log.d(LOG_TAG, "sendNotification");
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);//Ongoing notifications do not have an 'X' close button, and are not affected by the "Clear all" button.
 //        builder.setPriority(NotificationCompat.PRIORITY_MAX);
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.view_dingdang_notification);
-        MusicItem song = DatabaseModel.getDatabaseModelInstance(context).getMusicItemById(service.getPlayingId());
-        remoteViews.setTextViewText(R.id.notification_song_title, song.getMusicTitle());
-        remoteViews.setTextViewText(R.id.notification_song_artist, song.getmArtist());
-        remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.ic_launcher);
-//        remoteViews.setTextViewText(R.id.notification_time_tv, getTime());
-        switch (service.getPlayState()){
-            case PlayStateConstant.ISPLAYING:
-                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.pause);
-                break;
-            case PlayStateConstant.ISPAUSE:
-                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.play);
-                break;
-            default:
-                break;
-        }
-
+        initRemoteViews(remoteViews,context, service);
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(KEY_NOTICE_ID, NOTICE_ID);
-        /*FLAG_ACTIVITY_CLEAR_TASK :如果在调用Context.startActivity时传递这个标记，
-        将会导致任何用来放置该activity的已经存在的task里面的已经存在的activity先清空，
-        然后该activity再在该task中启动，也就是说，这个新启动的activity变为了这个空tas的根activity.
-        所有老的activity都结束掉。该标志必须和FLAG_ACTIVITY_NEW_TASK一起使用。*/
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        /*跳转到app首页*/
         int requestCode = (int) SystemClock.uptimeMillis();
         PendingIntent pi = PendingIntent
                 .getActivity(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.dingdang_notification, pi);
 
         /*关闭通知*/
-        int requestCode1 = (int) SystemClock.uptimeMillis();
+        int requestCodeClose = (int) SystemClock.uptimeMillis();
         Intent intentCloseNotification = new Intent(ACTION_CLOSE_NOTICE);
         intentCloseNotification.putExtra(KEY_NOTICE_ID, NOTICE_ID);
         intentCloseNotification.putExtra(NOTIFICATION_CATEGORY, CLOSE_NOTICE);
         PendingIntent piCloseNotification = PendingIntent
-                .getBroadcast(context,requestCode1,intentCloseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
+                .getBroadcast(context,requestCodeClose,intentCloseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_close_notification, piCloseNotification);
 
         /*播放/暂停*/
@@ -115,15 +90,21 @@ public class DingdangNotificationHelper{
                 .getBroadcast(context,requestCodePlayOrPause,intentPlayOrPauseNotification,PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_play_pause, piPlayOrPauseNotification);
 
+        /*下一曲*/
+        int requestCodePlayNext = (int) SystemClock.uptimeMillis();
+        Intent intentPlayNextNotification = new Intent(ACTION_PLAYNEXT);
+        intentPlayNextNotification.putExtra(KEY_NOTICE_ID, NOTICE_ID);
+        intentPlayNextNotification.putExtra(NOTIFICATION_CATEGORY, PLAY_NEXT);
+        PendingIntent piPlayNextNotification = PendingIntent
+                .getBroadcast(context,requestCodePlayNext,intentPlayNextNotification,PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.notification_playnext, piPlayNextNotification);
+
         builder.setSmallIcon(R.mipmap.ic_launcher);
-
         Notification notification = builder.build();
-
 //        if(android.os.Build.VERSION.SDK_INT >= 16) {
 //            notification = builder.build();
 //            notification.bigContentView = remoteViews;
 //        }
-
         notification.contentView = remoteViews;
         NotificationManager manager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -146,12 +127,27 @@ public class DingdangNotificationHelper{
         service.playOrPause();
     }
 
-//    @Override
-//    public void onMusicStateChanged(int playState) {
-//        updatePlayOrPauseBtnImg();
-//    }
+    public static void playNext(){
+        MusicService service = DingdangApplication.getDingdangApplication().getmService();
+        service.playNext();
+    }
 
-//    private void updatePlayOrPauseBtnImg() {
-//
-//    }
+    private static void initRemoteViews(RemoteViews remoteViews, Context context, MusicService service){
+        MusicItem song = DatabaseModel.getDatabaseModelInstance(context).getMusicItemById(service.getPlayingId());
+        remoteViews.setTextViewText(R.id.notification_song_title, song.getMusicTitle());
+        remoteViews.setTextViewText(R.id.notification_song_artist, song.getmArtist());
+        remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.ic_launcher);
+        remoteViews.setImageViewResource(R.id.notification_playnext, R.mipmap.play_next);
+//        remoteViews.setTextViewText(R.id.notification_time_tv, getTime());
+        switch (service.getPlayState()){
+            case PlayStateConstant.ISPLAYING:
+                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.pause);
+                break;
+            case PlayStateConstant.ISPAUSE:
+                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.play);
+                break;
+            default:
+                break;
+        }
+    }
 }

@@ -1,16 +1,12 @@
 package com.example.sevenlaps.dingdangplayer;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,10 +19,10 @@ import android.widget.TextView;
 
 import com.example.sevenlaps.controller.LoadStateConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
-import com.example.sevenlaps.notification.DingdangNotificationHelper;
+import com.example.sevenlaps.notification.NotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
-import com.example.sevenlaps.utils.*;
 import com.example.sevenlaps.utils.ActivityContainer;
+import com.example.sevenlaps.utils.DingdangApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .getMusicItemById(1).getPath());
             mBoundService.setPlayingId(1);
 
-            updateView(mBoundService.getPlayState());
+            updateViewByPlayState(mBoundService.getPlayState());
         }
 
         @Override
@@ -84,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+    /**
+     * 绑定服务
+     */
     void doBindService() {
         Log.d(LOG_TAG, "doBindService()");
         if (bindService(mServiceIntent, mConnection, BIND_AUTO_CREATE)) {
@@ -91,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * 解绑服务
+     */
     void doUnbindService() {
         Log.d(LOG_TAG, "doUnbindService()");
         if (mIsBound == true) {
@@ -109,17 +111,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
 
-        mHandler = new Handler() {
+        mHandler = new Handler() {//监听歌曲加载是否完成，设置界面
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case LoadStateConstant.HAS_LOADED:
                         Log.d(LOG_TAG, "make the ProgressBar Gone!");
-                        mLoadPBar.setVisibility(View.GONE);
-                        mPBarText.setVisibility(View.GONE);
-                        mIBtnPlayOrPause.setVisibility(View.VISIBLE);
-                        mBtnDetails.setVisibility(View.VISIBLE);
+                        initLoadedView();
+
                         if (mCountThread != null) {
                             mCountThread.interrupt();//终止线程
                         }
@@ -139,15 +139,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
-        /*注册退出时候的广播*/
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction("com.example.sevenlaps.notification.action.closenotice");
-//        registerReceiver(exitReceiver, filter);
-
         ActivityContainer.getContainer().addActivity(this);
     }
 
-
+    /**
+     * 初始化界面
+     */
     private void initView() {
 
         mMusicListView = (ListView) findViewById(R.id.listview_music_list);
@@ -168,6 +165,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mLoadThread = new LoadThread();
         mCountThread.start();
         mLoadThread.start();
+    }
+
+    /**
+     * 初始化加载数据后的一些界面变动
+     */
+    private void initLoadedView(){
+        mLoadPBar.setVisibility(View.GONE);
+        mPBarText.setVisibility(View.GONE);
+        mIBtnPlayOrPause.setVisibility(View.VISIBLE);
+        mBtnDetails.setVisibility(View.VISIBLE);
 
     }
 
@@ -189,6 +196,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBoundService.playOrPause();
     }
 
+    /**
+     * 点击跳转到Details页面的按钮
+     */
     private void performBtnJumpToDetailsClick() {
         Log.d(LOG_TAG, "performBtnJumpToDetailsClick");
         mBoundService.setmFrontActivityId(1);//点击通知,跳转到details页面
@@ -236,7 +246,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-
+    /**
+     * 点击列表中的歌曲
+     * @param position
+     */
     private void performItemClick(int position) {
 
         Log.d(LOG_TAG, "performItemClick");
@@ -285,37 +298,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        doBindService();
     }
 
+    /**
+     * 实现回调，监听
+     * @param playState
+     */
     @Override
     public void onMusicStateChanged(int playState) {
         Log.d(LOG_TAG, "onMusicStateChanged");
-        updateView(mBoundService.getPlayState());
+        updateViewByPlayState(mBoundService.getPlayState());
 //        mBoundService.updateNotification();//状态改变及时更新到通知栏
-        DingdangNotificationHelper.sendNotification(this, mBoundService);
+        NotificationHelper.sendNotification(this, mBoundService);
     }
 
-    private void updateView(int playState) {
+    /**
+     * 根据播放状态更新界面
+     * @param playState
+     */
+    private void updateViewByPlayState(int playState) {
         updateButtonUI(playState);
     }
-
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        Log.d(LOG_TAG, "onNewIntent(Intent intent)");
-//        super.onNewIntent(intent);
-//
-////        int messageType = getIntent().getIntExtra("message", 0);
-//        switch (mBoundService.getmFrontActivityId()) {
-//            case 0:
-//                //啥也不做
-//                break;
-//            case 1:
-//                Intent intentToDetails = new Intent(this, MusicDetailsActivity.class);
-//                intentToDetails.putExtra("id", mBoundService.getPlayingId());
-//                startActivity(intentToDetails);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
 
     public static int getmLoadState() {
         return mLoadState;
@@ -325,9 +326,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MainActivity.mLoadState = mLoadState;
     }
 
+    /*开线程，等待加载结束后（mLoadState被设置LoadStateConstant.HAS_LOADED后）发消息给handler
+    * 更新界面*/
     private class CountThread extends Thread {
         public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
-
         @Override
         public void run() {
             super.run();
@@ -350,6 +352,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /*开线程来加载数据*/
     private class LoadThread extends Thread {
         public volatile boolean exit = false;//volatile使得在同一时刻只能由一个线程来修改exit的值
 
@@ -365,17 +368,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-//    class ExitReceiver extends BroadcastReceiver{
-//
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.d(LOG_TAG, "onReceive(Context context, Intent intent)");
-//            int notificationId = intent.getIntExtra(DingdangNotificationHelper.KEY_NOTICE_ID, -1);
-//            if (notificationId!=-1){
-//                ActivityContainer.getContainer().finishAllActivities();
-//            }
-//        }
-//    }
 }
 
 

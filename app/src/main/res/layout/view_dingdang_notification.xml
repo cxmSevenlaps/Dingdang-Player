@@ -63,11 +63,20 @@
             android:src="@mipmap/push_close" />
 
         <ImageButton
-            android:id="@+id/notification_play_pause"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:id="@+id/notification_playnext"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/notification_close_notification"
+            android:background="#e0FFFFFF"
+            android:scaleType="centerInside"/>
+
+        <ImageButton
+            android:id="@+id/notification_play_pause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/notification_playnext"
             android:background="#e0FFFFFF"
             android:scaleType="centerInside"/>
     </RelativeLayout>

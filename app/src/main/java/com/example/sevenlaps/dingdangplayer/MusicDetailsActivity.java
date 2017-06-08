@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
-import com.example.sevenlaps.notification.DingdangNotificationHelper;
+import com.example.sevenlaps.notification.NotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
 import com.example.sevenlaps.utils.*;
 import com.example.sevenlaps.utils.ActivityContainer;
@@ -148,6 +148,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
 //        setArtWork();
     }
 
+    /**
+     * 更新专辑封面
+     */
     private void updateArtWork() {
         Log.d(LOG_TAG, "setArtWork()");
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
@@ -179,7 +182,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     }
 
     /**
-     *
+     *更新歌曲名显示文本框
      */
     private void updateTitleTextView() {
         Log.d(LOG_TAG, "updateTitleTextView()");
@@ -198,6 +201,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /**
+     * 更新歌手信息显示框
+     */
     private void updateArtistTextView() {
         Log.d(LOG_TAG, "updateArtistTextView()");
         mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
@@ -236,6 +242,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /**
+     * 设置播放模式
+     */
     private void selectPlayMode() {
         int playMode = mBoundService.getmPlayMode();
         switch (playMode) {
@@ -286,7 +295,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         Log.d(LOG_TAG, "onMusicStateChanged");
         updateView(playState);
 //        mBoundService.updateNotification();//更新通知栏
-        DingdangNotificationHelper.sendNotification(this,mBoundService);
+        NotificationHelper.sendNotification(this,mBoundService);
     }
 
     /**
@@ -332,19 +341,23 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-
+    /**
+     * 歌曲进度条progressBar的回调
+     * @param seekBar
+     * @param progress
+     * @param fromUser
+     */
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {//判断是否来自用户的拖动操作
             mTextViewCurrentTime.setText(sdf.format(seekBar.getProgress()));
         }
     }
-
+    /*拖动进度条的时候，进度条不用自动更新*/
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         isChanging = true;
     }
-
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         mBoundService.getmMediaPlayer().seekTo(seekBar.getProgress());
