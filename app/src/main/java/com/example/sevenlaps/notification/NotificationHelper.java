@@ -3,12 +3,8 @@ package com.example.sevenlaps.notification;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -25,8 +21,6 @@ import com.example.sevenlaps.utils.DingdangApplication;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import static android.content.Context.BIND_AUTO_CREATE;
 
 /**
  * Created by chenxianmin on 2017/6/6.
@@ -138,11 +132,18 @@ public class NotificationHelper{
     }
 
     public static void playMusic(){
-        MusicService service = DingdangApplication.getDingdangApplication().getmService();
-        service.playMusic();
+        if (DingdangApplication.getDingdangApplication().ismIsBound()==true){
+
+            MusicService service = DingdangApplication.getDingdangApplication().getmService();
+            service.playMusic();
+        }else {
+            //第一次打开app,还未绑定的时候,马上插入耳机
+            //do nothing
+        }
     }
 
     private static void initRemoteViews(RemoteViews remoteViews, Context context, MusicService service){
+        Log.d(LOG_TAG, "initRemoteViews");
         MusicItem song = DatabaseModel.getDatabaseModelInstance(context).getMusicItemById(service.getPlayingId());
         remoteViews.setTextViewText(R.id.notification_song_title, song.getMusicTitle());
         remoteViews.setTextViewText(R.id.notification_song_artist, song.getmArtist());

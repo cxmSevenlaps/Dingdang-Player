@@ -20,8 +20,8 @@ import com.example.sevenlaps.controller.PlayModeConstant;
 import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.notification.NotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
-import com.example.sevenlaps.utils.*;
 import com.example.sevenlaps.utils.ActivityContainer;
+import com.example.sevenlaps.utils.DingdangApplication;
 
 import java.text.SimpleDateFormat;
 
@@ -59,6 +59,10 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             mBoundService = mMusicBinder.getService();
             mBoundService.addMusicStateChangedListener(MusicDetailsActivity.this);
 
+
+            /*存起来当做全局控制播放用，其他的地方可以调用*/
+            DingdangApplication.getDingdangApplication().setmService(mBoundService);
+            DingdangApplication.getDingdangApplication().setmIsBound(true);
 
             /*设定更新seekbar ui的任务*/
             mHandler = new Handler();

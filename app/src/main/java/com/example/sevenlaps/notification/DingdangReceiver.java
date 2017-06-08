@@ -1,16 +1,12 @@
 package com.example.sevenlaps.notification;
 
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.util.Log;
 
-import com.example.sevenlaps.dingdangplayer.MainActivity;
-import com.example.sevenlaps.dingdangplayer.MusicService;
 import com.example.sevenlaps.utils.ActivityContainer;
-import com.example.sevenlaps.utils.DingdangApplication;
 
 public class DingdangReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "ClearNotificationBR";
@@ -37,7 +33,7 @@ public class DingdangReceiver extends BroadcastReceiver {
                 ActivityContainer.getContainer().finishAllActivities();
                 break;
             case NotificationHelper.PLAY_OR_PAUSE:
-                NotificationHelper.playOrPause();
+                NotificationHelper.playOrPause();//问题出在这里,拔出耳机后,代码会跑到这里
                 break;
             case NotificationHelper.PLAY_NEXT:
                 NotificationHelper.playNext();
@@ -48,7 +44,7 @@ public class DingdangReceiver extends BroadcastReceiver {
         if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)){//拔出耳机
             NotificationHelper.pauseMusic();
         }else if (action.equals(AudioManager.ACTION_HEADSET_PLUG)){
-//            NotificationHelper.playMusic();
+            NotificationHelper.playMusic();
         }
 
 //        throw new UnsupportedOperationException("Not yet implemented");

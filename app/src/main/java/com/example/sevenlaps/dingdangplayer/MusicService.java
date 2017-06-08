@@ -2,8 +2,6 @@ package com.example.sevenlaps.dingdangplayer;
 
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -17,6 +15,7 @@ import com.example.sevenlaps.controller.PlayStateConstant;
 import com.example.sevenlaps.notification.DingdangReceiver;
 import com.example.sevenlaps.notification.NotificationHelper;
 import com.example.sevenlaps.orm.DatabaseModel;
+import com.example.sevenlaps.utils.DingdangApplication;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
     private final int NOTIFICATION_DINGDANG_MUSIC = R.string.dingdang_music_service_started;
     private List<OnMusicStateChangedListener> musicStateChangedListeners;
-    private int playState = PlayStateConstant.IS_STOP;//播放状态
+    private int playState = PlayStateConstant.IS_STOP;//播放状态,初始化为停止
     private int playingId = 1;//正在播放的歌曲id,默认第一首
     private String path;
     private int mNumberOfSongs = 0;
@@ -317,6 +316,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
 
+        DingdangApplication.getDingdangApplication().setmIsBound(false);
+
         if (mReceiver!=null){
             unregisterReceiver(mReceiver);
         }
@@ -358,8 +359,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         filter.addAction(NotificationHelper.ACTION_CLOSE_NOTICE);
         filter.addAction(NotificationHelper.ACTION_PLAY_OR_PAUSE);
 
-        filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-        filter.addAction(AudioManager.ACTION_HEADSET_PLUG);
+        filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);//耳机拔出
+        filter.addAction(AudioManager.ACTION_HEADSET_PLUG);//耳机插入
         registerReceiver(mReceiver, filter);
     }
 }

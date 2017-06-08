@@ -61,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBoundService.setmNumberOfSongs(mMusicItemAdapter.getCount());
             mBoundService.setmFrontActivityId(0);
 
-//            mApp.setmService(mBoundService);
-            /*存起来当做全局控制播放用，其他的地方可以调*/
+            /*存起来当做全局控制播放用，其他的地方可以调用*/
             DingdangApplication.getDingdangApplication().setmService(mBoundService);
+            DingdangApplication.getDingdangApplication().setmIsBound(true);
 
             /*第一次打开app,默认加载列表第一首歌*/
             mBoundService.setPath(DatabaseModel.getDatabaseModelInstance(MainActivity.this)
@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * btn上显示正在播放的歌曲信息,设置播放图标
      */
     private void updateButtonUI(int playState) {
+        Log.d(LOG_TAG, "updateButtonUI");
         MusicItem item;
         item = DatabaseModel.getDatabaseModelInstance(this).getMusicItemById(mBoundService.getPlayingId());
         if (item.getMusicTitle() == null) {
