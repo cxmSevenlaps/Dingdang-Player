@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -43,6 +44,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private ImageButton mIbtnPlayOrPause;
     private ImageButton mIbtnPlayPrevious;
     private ImageButton mIbtnPlayNext;
+    private Button mBtnSetFavorite;
 
     private Handler mHandler = null;
     private boolean isChanging = false;//互斥变量，防止定时器与SeekBar拖动时进度冲突;true说明用户正在拖动还没放手
@@ -135,6 +137,8 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayOrPause = (ImageButton) findViewById(R.id.ibtn_details_play_or_pause);
         mIbtnPlayPrevious = (ImageButton) findViewById(R.id.ibtn_details_play_previous);
         mIbtnPlayNext = (ImageButton) findViewById(R.id.ibtn_details_play_next);
+        mBtnSetFavorite = (Button)findViewById(R.id.btn_favorite);
+
         mSeekBar = (SeekBar) findViewById(R.id.seekbar);
         mSeekBar.setOnSeekBarChangeListener(this);
 
@@ -142,6 +146,7 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         mIbtnPlayOrPause.setOnClickListener(this);
         mIbtnPlayPrevious.setOnClickListener(this);
         mIbtnPlayNext.setOnClickListener(this);
+        mBtnSetFavorite.setOnClickListener(this);
 
 //        mIbtnPlayMode.setImageResource(R.id.);
 
@@ -241,11 +246,22 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
             case R.id.ibtn_details_play_next:
                 performBtnPlayNext();
                 break;
+            case R.id.btn_favorite:
+                performSetFavorite();
+                break;
             default:
                 break;
         }
     }
 
+    /**
+     * 添加收藏
+     */
+    private void performSetFavorite(){
+        Log.d(LOG_TAG, "performSetFavorite()");
+        //更新数据库的favorite字段
+
+    }
     /**
      * 设置播放模式
      */

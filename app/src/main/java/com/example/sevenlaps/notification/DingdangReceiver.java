@@ -44,7 +44,7 @@ public class DingdangReceiver extends BroadcastReceiver {
         if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)){//拔出耳机
             NotificationHelper.pauseMusic();
         }else if (action.equals(AudioManager.ACTION_HEADSET_PLUG)){
-            NotificationHelper.playMusic();
+//            NotificationHelper.playMusic();
         }
 
 //        throw new UnsupportedOperationException("Not yet implemented");

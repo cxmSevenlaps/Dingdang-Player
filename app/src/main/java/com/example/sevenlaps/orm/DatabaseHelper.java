@@ -9,13 +9,14 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
+    /*favorite值初始为0,歌曲被收藏后为1*/
     public static final String CREATE_MUSIC_INFO = "create table MusicInfo ("
             +"id integer primary key autoincrement, "
             +"title text, "
             +"artist text, "
             +"duration text,"
             + "path text,"
+            + "favorite integer,"
             + "artwork BLOB)";
     private Context mContext;
 

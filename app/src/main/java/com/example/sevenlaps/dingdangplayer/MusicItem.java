@@ -12,6 +12,7 @@ public class MusicItem {
     private String path;
     private String duration;
     private byte[] mArtWork;//专辑图片
+    private boolean mFavorite = false;
 
     public MusicItem(){}
 
@@ -24,6 +25,14 @@ public class MusicItem {
 //        this.mArtist = mArtist;
 //    }
 
+
+    public boolean ismFavorite() {
+        return mFavorite;
+    }
+
+    public void setmFavorite(boolean mFavorite) {
+        this.mFavorite = mFavorite;
+    }
 
     public byte[] getmArtWork() {
         return mArtWork;

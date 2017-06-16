@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public class MusicDaoImplement implements MusicDao {
-    private static final String TAG_MUSICE_DAO_IMPLEMENT = "MUSICE_DAO_IMPLEMENT";
+    private static final String LOG_TAG = "MUSICE_DAO_IMPLEMENT";
     private static final String MUSIC_DATABASE_NAME = "Music.db";
     private static final String MUSIC_INFO_TABLE = "MusicInfo";
     private static final int VERSION = 1;
@@ -47,11 +47,18 @@ public class MusicDaoImplement implements MusicDao {
             cv.put("path", item.getPath());
             cv.put("duration", item.getDuration());
             cv.put("artwork", item.getmArtWork());
+            if (item.ismFavorite()){
+                cv.put("favorite", 1);
+            }else {
+                cv.put("favorite", 0);
+            }
+
             getMusicInfoDatabase().insert(MUSIC_INFO_TABLE, null, cv);
-            Log.d(TAG_MUSICE_DAO_IMPLEMENT, "insert " + item.getMusicTitle() + "path" + item.getPath() + " to database");
+            Log.d(LOG_TAG, "insert " + item.getMusicTitle() + "path" + item.getPath() + " to database");
+            Log.d(LOG_TAG, "favorite: "+item.ismFavorite());
             cv.clear();
         }
-        Log.d(TAG_MUSICE_DAO_IMPLEMENT, "insert items to database");
+        Log.d(LOG_TAG, "insert items to database");
     }
 
     @Override
@@ -102,13 +109,13 @@ public class MusicDaoImplement implements MusicDao {
                 item.setmArtist(cursor.getString(cursor.getColumnIndex("artist")));
                 item.setDuration(cursor.getString(cursor.getColumnIndex("duration")));
                 items.add(item);
-                Log.d(TAG_MUSICE_DAO_IMPLEMENT, "add to list:  title: " + item.getMusicTitle() + " artist: " + item.getmArtist() + " id=" + item.getmId());
+                Log.d(LOG_TAG, "add to list:  title: " + item.getMusicTitle() + " artist: " + item.getmArtist() + " id=" + item.getmId());
             } while (cursor.moveToNext());
         }
         cursor.close();
-        Log.d(TAG_MUSICE_DAO_IMPLEMENT, "items size = " + items.size());
+        Log.d(LOG_TAG, "items size = " + items.size());
         for (MusicItem musicItem : items) {
-            Log.d(TAG_MUSICE_DAO_IMPLEMENT, "title: " + musicItem.getMusicTitle() + " artist: " + musicItem.getmArtist());
+            Log.d(LOG_TAG, "title: " + musicItem.getMusicTitle() + " artist: " + musicItem.getmArtist());
         }
         return items;
     }
@@ -127,7 +134,7 @@ public class MusicDaoImplement implements MusicDao {
     }
 
 
-    /*获取数据库对象*/
+    /*新建数据库,并获取数据库对象*/
     private SQLiteDatabase getMusicInfoDatabase() {
         return mDbHelper.getWritableDatabase();
     }

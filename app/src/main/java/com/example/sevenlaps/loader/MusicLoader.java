@@ -52,9 +52,11 @@ public class MusicLoader {
         item.setDuration(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         item.setPath(musicFile.getAbsolutePath());
         item.setmArtWork(mMediaMetadataRetriever.getEmbeddedPicture());
+        item.setmFavorite(false);
+
 
         Log.d("MusicLoader", "" + item.getmArtist() + "  " + item.getMusicTitle() + "path:" + item.getPath()
-                + "  " + "duration:" + item.getDuration());
+                + "  " + "duration:" + item.getDuration()+ " favorite:"+item.ismFavorite());
         return item;
     }
 

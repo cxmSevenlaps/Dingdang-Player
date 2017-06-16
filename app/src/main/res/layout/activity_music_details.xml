@@ -87,6 +87,6 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/favorite"
+        android:id="@+id/btn_favorite"
         android:text="@string/favorite"/>
 </LinearLayout>
