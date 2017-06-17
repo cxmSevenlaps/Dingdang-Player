@@ -52,11 +52,11 @@ public class MusicLoader {
         item.setDuration(mMediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         item.setPath(musicFile.getAbsolutePath());
         item.setmArtWork(mMediaMetadataRetriever.getEmbeddedPicture());
-        item.setmFavorite(false);
+        item.setmFavorite(0);//初始化都是没有被收藏的,设为0
 
 
         Log.d("MusicLoader", "" + item.getmArtist() + "  " + item.getMusicTitle() + "path:" + item.getPath()
-                + "  " + "duration:" + item.getDuration()+ " favorite:"+item.ismFavorite());
+                + "  " + "duration:" + item.getDuration()+ " favorite:"+item.getmFavorite());
         return item;
     }
 

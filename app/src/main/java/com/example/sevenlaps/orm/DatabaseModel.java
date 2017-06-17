@@ -20,6 +20,8 @@ public class DatabaseModel {
     private static final String LOG_TAG = "DatabaseModel";
     private static final String MUSIC_DIR = Environment
             .getExternalStorageDirectory().getAbsolutePath() + "/dingdangplayer/song_bak";
+    public static final int NOT_FAVORITE = 0;
+    public static final int IS_FAVORITE = 1;
     private MusicDao mMusicDao;
     private static DatabaseModel databaseModelInstance;
 
@@ -89,5 +91,17 @@ public class DatabaseModel {
         itemsQuantity = mMusicDao.getItemsQuantity();
 
         return itemsQuantity;
+    }
+
+    public void setFavoriteById(int id){
+        Log.d(LOG_TAG, "setFavorite("+ id +")");
+        MusicItem musicItem = new MusicItem();
+        musicItem = mMusicDao.getItemById(id);
+        if (musicItem.getmFavorite()==1) {
+            mMusicDao.setFavorite(id, NOT_FAVORITE);
+        }else if (musicItem.getmFavorite()==0){
+            //如果已经收藏,就做取消收藏
+            mMusicDao.setFavorite(id, IS_FAVORITE);
+        }
     }
 }

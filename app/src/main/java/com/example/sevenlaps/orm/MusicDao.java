@@ -22,4 +22,6 @@ public interface MusicDao {
     public List<MusicItem> getAll();
 
     public int getItemsQuantity();//获取条目的数量
+
+    public void setFavorite(int id, int flag);//设置收藏
 }

@@ -26,7 +26,10 @@ public class MusicDaoImplement implements MusicDao {
     public MusicDaoImplement(Context context) {
         mDbHelper = new DatabaseHelper(context, MUSIC_DATABASE_NAME, null, VERSION);
     }
-
+    /*新建数据库,并获取数据库对象*/
+    private SQLiteDatabase getMusicInfoDatabase() {
+        return mDbHelper.getWritableDatabase();
+    }
     @Override
     public void insert(MusicItem item) {
         ContentValues cv = new ContentValues();
@@ -47,15 +50,15 @@ public class MusicDaoImplement implements MusicDao {
             cv.put("path", item.getPath());
             cv.put("duration", item.getDuration());
             cv.put("artwork", item.getmArtWork());
-            if (item.ismFavorite()){
+            if (item.getmFavorite()==1){
                 cv.put("favorite", 1);
-            }else {
+            }else if (item.getmFavorite()==0){
                 cv.put("favorite", 0);
             }
 
             getMusicInfoDatabase().insert(MUSIC_INFO_TABLE, null, cv);
             Log.d(LOG_TAG, "insert " + item.getMusicTitle() + "path" + item.getPath() + " to database");
-            Log.d(LOG_TAG, "favorite: "+item.ismFavorite());
+            Log.d(LOG_TAG, "favorite: "+item.getmFavorite());
             cv.clear();
         }
         Log.d(LOG_TAG, "insert items to database");
@@ -87,10 +90,12 @@ public class MusicDaoImplement implements MusicDao {
             item.setPath(cursor.getString(cursor.getColumnIndex("path")));
             item.setDuration(cursor.getString(cursor.getColumnIndex("duration")));
             item.setmArtWork(cursor.getBlob(cursor.getColumnIndex("artwork")));
+            item.setmFavorite(cursor.getInt(cursor.getColumnIndex("favorite")));
             Log.d("MusicDaoImplement", "" + "id=" + item.getmId()
                     + " title: " + item.getMusicTitle()
                     + " path:" + item.getPath()
-                    + " duration:" + item.getDuration());
+                    + " duration:" + item.getDuration()
+                    + " favorite:" + item.getmFavorite());
         }
         cursor.close();
         return item;
@@ -134,8 +139,20 @@ public class MusicDaoImplement implements MusicDao {
     }
 
 
-    /*新建数据库,并获取数据库对象*/
-    private SQLiteDatabase getMusicInfoDatabase() {
-        return mDbHelper.getWritableDatabase();
+    @Override
+    /**
+     * 设置歌曲为收藏
+     */
+    public void setFavorite(int id, int flag) {
+        Log.d(LOG_TAG, "setFavorite("+ id +")");
+
+        getMusicInfoDatabase().beginTransaction();
+        ContentValues cv = new ContentValues();
+        cv.put("favorite", flag);
+        getMusicInfoDatabase().update(MUSIC_INFO_TABLE, cv, "id=?", new String[]{String.valueOf(id)});
+        getMusicInfoDatabase().setTransactionSuccessful();
+        getMusicInfoDatabase().endTransaction();
     }
+
+
 }

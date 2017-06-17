@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
 
+        //设置播放列表
         mHandler = new Handler() {//监听歌曲加载是否完成，设置界面
             @Override
             public void handleMessage(Message msg) {

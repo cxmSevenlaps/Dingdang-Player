@@ -260,7 +260,9 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
     private void performSetFavorite(){
         Log.d(LOG_TAG, "performSetFavorite()");
         //更新数据库的favorite字段
+        DatabaseModel.getDatabaseModelInstance(this).setFavoriteById(mBoundService.getPlayingId());
 
+        updateBtnFavorite();
     }
     /**
      * 设置播放模式
@@ -331,8 +333,19 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
         updateArtistTextView();
         updateMaxTextView();
         updateArtWork();
+        updateBtnFavorite();
     }
 
+    private void updateBtnFavorite(){
+        Log.d(LOG_TAG, "updateBtnFavorite");
+        mMusicItem = DatabaseModel.getDatabaseModelInstance(this)
+                .getMusicItemById(mBoundService.getPlayingId());
+        if (mMusicItem.getmFavorite()==0){
+            mBtnSetFavorite.setText("收藏");
+        }else if (mMusicItem.getmFavorite()==1){
+            mBtnSetFavorite.setText("已收藏");
+        }
+    }
     private void updatePlayModeBtnImage(){
         switch (mBoundService.getmPlayMode()) {
             case PlayModeConstant.PLAYMODE_SEQUENTIAL:
