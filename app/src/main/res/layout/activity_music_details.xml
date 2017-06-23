@@ -4,31 +4,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:gravity="center"
-        android:textSize="60px"
-        android:textStyle="bold" />
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_artist"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:gravity="center"
-        android:textSize="50px" />
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center"
+            android:textSize="60px"
+            android:textStyle="bold" />
 
-    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:id="@+id/iv_art_wrok"
-        android:layout_gravity="center"
-        />
+        <TextView
+            android:id="@+id/tv_artist"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:textSize="50px" />
+
+        <ImageView
+            android:id="@+id/iv_art_wrok"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
@@ -62,10 +68,11 @@
         android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/ibtn_playmode"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:id="@+id/ibtn_playmode"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside" />
+
         <ImageButton
             android:id="@+id/ibtn_details_play_previous"
             android:layout_width="75dp"
@@ -84,8 +91,9 @@
             android:layout_height="75dp"
             android:scaleType="centerInside" />
     </LinearLayout>
+
     <Button
+        android:id="@+id/btn_favorite"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_favorite"/>
+        android:layout_height="wrap_content" />
 </LinearLayout>
