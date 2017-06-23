@@ -223,20 +223,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mBtnDetails.setText("正在播放:" + item.getMusicTitle());
         }
 
-        switch (playState) {
-            case PlayStateConstant.ISPLAYING:
-                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
-                break;
-            case PlayStateConstant.IS_STOP:
-                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-                break;
-            case PlayStateConstant.ISPAUSE:
-
-                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
-                break;
-            default:
-                break;
-        }
+//        switch (playState) {
+//            case PlayStateConstant.ISPLAYING:
+//                mIBtnPlayOrPause.setImageResource(R.mipmap.pause);
+//                break;
+//            case PlayStateConstant.IS_STOP:
+//                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+//                break;
+//            case PlayStateConstant.ISPAUSE:
+//
+//                mIBtnPlayOrPause.setImageResource(R.mipmap.play);
+//                break;
+//            default:
+//                break;
+//        }
+        mIBtnPlayOrPause.setImageResource(playState==PlayStateConstant.ISPLAYING?R.mipmap.pause:R.mipmap.play);
 
     }
 

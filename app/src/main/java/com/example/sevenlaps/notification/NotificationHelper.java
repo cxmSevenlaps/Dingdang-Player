@@ -150,15 +150,17 @@ public class NotificationHelper{
         remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.ic_launcher);
         remoteViews.setImageViewResource(R.id.notification_playnext, R.mipmap.play_next);
 //        remoteViews.setTextViewText(R.id.notification_time_tv, getTime());
-        switch (service.getPlayState()){
-            case PlayStateConstant.ISPLAYING:
-                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.pause);
-                break;
-            case PlayStateConstant.ISPAUSE:
-                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.play);
-                break;
-            default:
-                break;
-        }
+//        switch (service.getPlayState()){
+//            case PlayStateConstant.ISPLAYING:
+//                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.pause);
+//                break;
+//            case PlayStateConstant.ISPAUSE:
+//                remoteViews.setImageViewResource(R.id.notification_play_pause, R.mipmap.play);
+//                break;
+//            default:
+//                break;
+//        }
+        remoteViews.setImageViewResource(R.id.notification_play_pause,
+                service.getPlayState()==PlayStateConstant.ISPLAYING? R.mipmap.pause:R.mipmap.play);
     }
 }

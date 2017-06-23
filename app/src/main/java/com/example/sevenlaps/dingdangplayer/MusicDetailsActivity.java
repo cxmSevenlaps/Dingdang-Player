@@ -367,11 +367,12 @@ public class MusicDetailsActivity extends AppCompatActivity implements View.OnCl
      * @param playState 播放状态
      */
     private void updateBtnPlayOrPauseImage(int playState) {
-        if (playState == PlayStateConstant.ISPLAYING) {
-            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
-        } else if (playState == PlayStateConstant.ISPAUSE) {
-            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
-        }
+//        if (playState == PlayStateConstant.ISPLAYING) {
+//            mIbtnPlayOrPause.setImageResource(R.mipmap.pause);
+//        } else if (playState == PlayStateConstant.ISPAUSE) {
+//            mIbtnPlayOrPause.setImageResource(R.mipmap.play);
+//        }
+        mIbtnPlayOrPause.setImageResource(playState==PlayStateConstant.ISPLAYING? R.mipmap.pause:R.mipmap.play);
     }
 
     /**
